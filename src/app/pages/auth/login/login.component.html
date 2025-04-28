@@ -1,0 +1,86 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to access your account</p>
+    </div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Error Message Display -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email" 
+          placeholder="Enter your email"
+          [class.is-invalid]="loginForm.get('email')?.invalid && 
+                             (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)"
+        >
+        <div class="validation-error" *ngIf="loginForm.get('email')?.invalid && 
+                                           (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)">
+          <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+          <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+      
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          formControlName="password" 
+          placeholder="Enter your password"
+          [class.is-invalid]="loginForm.get('password')?.invalid && 
+                             (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)"
+        >
+        <div class="validation-error" *ngIf="loginForm.get('password')?.invalid && 
+                                           (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)">
+          <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+      
+      <!-- Remember Me Checkbox -->
+      <div class="form-group form-checkbox">
+        <div class="checkbox-container">
+          <input type="checkbox" id="rememberMe" formControlName="rememberMe">
+          <label for="rememberMe">Remember me</label>
+        </div>
+        <a href="javascript:void(0)" (click)="navigateToForgotPassword()" class="forgot-password">Forgot password?</a>
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Signing In...</span>
+      </button>
+    </form>
+    
+    <div class="login-footer">
+      <p>Don't have an account? <a href="javascript:void(0)" (click)="navigateToRegister()">Sign up</a></p>
+      
+      <!-- Demo credentials for quick testing -->
+      <div class="demo-credentials">
+        <p>Demo Credentials:</p>
+        <div class="credential-list">
+          <div class="credential-item">
+            <span>Patient:</span> patient&#64;example.com / password
+          </div>
+          <div class="credential-item">
+            <span>Doctor:</span> doctor&#64;example.com / password
+          </div>
+          <div class="credential-item">
+            <span>Admin:</span> admin&#64;example.com / password
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

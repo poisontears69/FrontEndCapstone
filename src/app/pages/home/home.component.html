@@ -1,0 +1,212 @@
+<div class="app-container">
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-logo">
+        <h1>HealthConnect</h1>
+      </div>
+      <div class="navbar-links">
+        <a href="javascript:void(0)" class="nav-link" (click)="navigateToLogin()">Login</a>
+        <a href="javascript:void(0)" class="nav-btn" (click)="navigateToRegister()">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>Healthcare Made Simple</h1>
+        <h2>Connecting Patients and Doctors Seamlessly</h2>
+        <p>Book appointments, consult with specialists, and manage your healthcare journey - all in one place.</p>
+        <div class="hero-buttons">
+          <button class="btn-primary" (click)="navigateToRegister()">Get Started</button>
+          <button class="btn-outline" (click)="scrollToFeatures()">Learn More</button>
+        </div>
+      </div>
+      <div class="hero-image">
+        <!-- Replace with an actual image -->
+        <div class="placeholder-image"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features" id="features">
+    <div class="section-header">
+      <h2>Why Choose HealthConnect</h2>
+      <p>Our platform offers a comprehensive suite of tools for patients and healthcare providers</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="icon-calendar"></i>
+        </div>
+        <h3>Easy Scheduling</h3>
+        <p>Book appointments with your preferred doctors in just a few clicks, 24/7.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="icon-doctor"></i>
+        </div>
+        <h3>Expert Specialists</h3>
+        <p>Connect with qualified healthcare professionals across various specialties.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="icon-records"></i>
+        </div>
+        <h3>Medical Records</h3>
+        <p>Access and share your medical history securely with your healthcare providers.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="icon-notification"></i>
+        </div>
+        <h3>Reminders & Notifications</h3>
+        <p>Never miss an appointment with timely reminders and notifications.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Patients Section -->
+  <section class="for-patients">
+    <div class="section-container">
+      <div class="section-image">
+        <!-- Replace with an actual image -->
+        <div class="placeholder-image"></div>
+      </div>
+      <div class="section-content">
+        <h2>For Patients</h2>
+        <p>Take control of your healthcare journey with our patient-centered features.</p>
+        <ul class="feature-list">
+          <li>Find doctors by specialty, location, or availability</li>
+          <li>Book and manage appointments online</li>
+          <li>Receive appointment reminders</li>
+          <li>Secure access to your medical records</li>
+          <li>Rate and review your healthcare experience</li>
+        </ul>
+        <button class="btn-secondary" (click)="navigateToRegister()">Register as a Patient</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Doctors Section -->
+  <section class="for-doctors">
+    <div class="section-container reverse">
+      <div class="section-content">
+        <h2>For Healthcare Providers</h2>
+        <p>Streamline your practice and enhance patient care with our comprehensive tools.</p>
+        <ul class="feature-list">
+          <li>Manage your appointment schedule efficiently</li>
+          <li>Reduce no-shows with automated reminders</li>
+          <li>Access patient medical histories securely</li>
+          <li>Streamline administrative tasks</li>
+          <li>Build your online presence and reputation</li>
+        </ul>
+        <button class="btn-secondary" (click)="navigateToRegister()">Register as a Doctor</button>
+      </div>
+      <div class="section-image">
+        <!-- Replace with an actual image -->
+        <div class="placeholder-image"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials">
+    <div class="section-header">
+      <h2>What Our Users Say</h2>
+      <p>Hear from patients and doctors who use HealthConnect every day</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"HealthConnect has transformed how I manage my medical appointments. Finding a specialist and booking appointments is now incredibly simple."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar"></div>
+          <div class="author-info">
+            <h4>Sarah Johnson</h4>
+            <p>Patient</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"As a physician, HealthConnect has helped me streamline my practice. The scheduling system has reduced administrative work and improved patient communication."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar"></div>
+          <div class="author-info">
+            <h4>Dr. Michael Chen</h4>
+            <p>Cardiologist</p>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"The platform's reminders have been a game-changer for managing my family's healthcare needs. We've never missed an appointment since using HealthConnect."</p>
+        </div>
+        <div class="testimonial-author">
+          <div class="author-avatar"></div>
+          <div class="author-info">
+            <h4>Robert Garcia</h4>
+            <p>Patient</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="cta-container">
+      <h2>Ready to Transform Your Healthcare Experience?</h2>
+      <p>Join thousands of patients and healthcare providers on HealthConnect</p>
+      <button class="btn-primary-large" (click)="navigateToRegister()">Get Started Today</button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-logo">
+        <h2>HealthConnect</h2>
+        <p>Healthcare Made Simple</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h3>Company</h3>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Our Team</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Resources</h3>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Providers</a></li>
+            <li><a href="#">Patients</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">HIPAA Compliance</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} HealthConnect. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
