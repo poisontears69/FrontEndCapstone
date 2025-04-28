@@ -1,0 +1,344 @@
+// Variables
+$primary-color: #3498db;
+$secondary-color: #2874a6;
+$accent-color: #2ecc71;
+$text-color: #333;
+$light-color: #f8f9fa;
+$border-color: #e9ecef;
+$shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+$radius: 8px;
+
+.home-container {
+  padding: 20px 0;
+}
+
+// Welcome Card
+.welcome-card {
+  background-color: white;
+  border-radius: $radius;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: $shadow;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  
+  .welcome-icon {
+    background-color: rgba($primary-color, 0.1);
+    color: $primary-color;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    i {
+      font-size: 32px;
+    }
+  }
+  
+  .welcome-content {
+    flex: 1;
+    
+    h2 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      color: $text-color;
+    }
+    
+    p {
+      margin: 0 0 20px 0;
+      color: #6c757d;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+  }
+}
+
+// Quick Actions
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  
+  .action-card {
+    background-color: white;
+    border-radius: $radius;
+    padding: 20px;
+    box-shadow: $shadow;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .action-icon {
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      
+      i {
+        font-size: 20px;
+      }
+    }
+    
+    h3 {
+      margin: 0 0 10px 0;
+      font-size: 18px;
+      color: $text-color;
+    }
+    
+    p {
+      margin: 0;
+      color: #6c757d;
+      font-size: 14px;
+    }
+  }
+}
+
+// Buttons
+.btn-primary {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken(#6c757d, 10%);
+  }
+}
+
+.btn-success {
+  background-color: $accent-color;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken($accent-color, 10%);
+  }
+}
+
+// Modal styles
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: $radius;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    color: $text-color;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #6c757d;
+    cursor: pointer;
+    
+    &:hover {
+      color: $text-color;
+    }
+  }
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+// Booking steps
+.booking-steps {
+  .step-indicators {
+    display: flex;
+    margin-bottom: 30px;
+    justify-content: space-between;
+    
+    .step-indicator {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      
+      &:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        right: -50%;
+        width: 100%;
+        height: 2px;
+        background-color: $border-color;
+        z-index: 1;
+      }
+      
+      &.active .step-icon {
+        background-color: $primary-color;
+        color: white;
+      }
+      
+      &.completed .step-icon {
+        background-color: $accent-color;
+        color: white;
+      }
+      
+      &.completed::after {
+        background-color: $accent-color;
+      }
+      
+      .step-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        z-index: 2;
+        position: relative;
+        
+        i {
+          font-size: 16px;
+        }
+      }
+      
+      .step-title {
+        font-size: 13px;
+        color: #6c757d;
+        font-weight: 500;
+      }
+      
+      &.active .step-title {
+        color: $primary-color;
+        font-weight: 600;
+      }
+      
+      &.completed .step-title {
+        color: $accent-color;
+      }
+    }
+  }
+  
+  .step-content {
+    .step-panel {
+      h3 {
+        margin: 0 0 15px 0;
+        color: $primary-color;
+        font-size: 20px;
+      }
+      
+      p {
+        margin: 0 0 15px 0;
+        color: #6c757d;
+        line-height: 1.5;
+      }
+      
+      .step-image {
+        margin: 20px 0;
+        text-align: center;
+        
+        img {
+          max-width: 100%;
+          height: auto;
+          max-height: 200px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive styles
+@media (max-width: 767px) {
+  .welcome-card {
+    flex-direction: column;
+    text-align: center;
+    
+    .welcome-icon {
+      margin: 0 auto;
+    }
+  }
+  
+  .booking-steps {
+    .step-indicators {
+      flex-wrap: wrap;
+      gap: 15px;
+      
+      .step-indicator {
+        flex: 0 0 calc(50% - 15px);
+        
+        &::after {
+          display: none;
+        }
+      }
+    }
+  }
+} 

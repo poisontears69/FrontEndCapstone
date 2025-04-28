@@ -1,0 +1,123 @@
+// Variables
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 70px;
+$header-height: 70px;
+$footer-height: 50px;
+$primary-color: #3498db;
+$bg-color: #f8f9fa;
+$text-color: #343a40;
+$border-color: #dee2e6;
+$transition: all 0.3s ease;
+
+.patient-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: $bg-color;
+}
+
+.patient-content {
+  flex: 1;
+  margin-left: $sidebar-width;
+  display: flex;
+  flex-direction: column;
+  transition: $transition;
+}
+
+.patient-header {
+  height: $header-height;
+  background-color: white;
+  border-bottom: 1px solid $border-color;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  
+  .header-title {
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: $text-color;
+    }
+  }
+  
+  .header-actions {
+    display: flex;
+    gap: 15px;
+    
+    .btn-icon {
+      background: none;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: $transition;
+      
+      i {
+        font-size: 18px;
+        color: #6c757d;
+      }
+      
+      &:hover {
+        background-color: $bg-color;
+      }
+    }
+  }
+}
+
+.patient-main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+.patient-footer {
+  height: $footer-height;
+  background-color: white;
+  border-top: 1px solid $border-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 30px;
+  
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: #6c757d;
+  }
+}
+
+// Responsive styles
+@media (max-width: 991px) {
+  .patient-content {
+    margin-left: $sidebar-collapsed-width;
+  }
+  
+  .patient-header {
+    padding: 0 20px;
+  }
+  
+  .patient-main {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .patient-content {
+    margin-left: 0;
+  }
+  
+  .patient-header {
+    .header-title h1 {
+      font-size: 18px;
+    }
+  }
+} 

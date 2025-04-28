@@ -1,0 +1,131 @@
+<div class="home-container">
+  <div class="welcome-card">
+    <div class="welcome-icon">
+      <i class="fas fa-hospital-user"></i>
+    </div>
+    <div class="welcome-content">
+      <h2>Welcome to HealthConnect</h2>
+      <p>Your health is our priority. Easily manage your appointments and health records in one place.</p>
+      <button class="btn-primary" (click)="openModal()">Book an Appointment</button>
+    </div>
+  </div>
+  
+  <div class="quick-actions">
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-calendar-check"></i>
+      </div>
+      <h3>My Appointments</h3>
+      <p>View and manage your upcoming appointments</p>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-history"></i>
+      </div>
+      <h3>Medical History</h3>
+      <p>Access your complete medical records</p>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-pills"></i>
+      </div>
+      <h3>Prescriptions</h3>
+      <p>View your current medications</p>
+    </div>
+    
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="fas fa-stethoscope"></i>
+      </div>
+      <h3>Find a Specialist</h3>
+      <p>Search for doctors by specialty</p>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Booking Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="onBackdropClick($event)">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2>How to Book an Appointment</h2>
+      <button class="close-btn" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="booking-steps">
+        <div class="step-indicators">
+          <div *ngFor="let step of steps" class="step-indicator" 
+               [class.active]="step.number === currentStep"
+               [class.completed]="step.number < currentStep">
+            <div class="step-icon">
+              <i [class]="step.icon"></i>
+            </div>
+            <div class="step-title">{{ step.title }}</div>
+          </div>
+        </div>
+        
+        <div class="step-content">
+          <!-- Step 1: Choose a doctor -->
+          <div *ngIf="currentStep === 1" class="step-panel">
+            <h3>Step 1: Choose a Doctor</h3>
+            <p>Browse our list of qualified healthcare providers and select one who meets your needs.</p>
+            <div class="step-image">
+              <img src="assets/images/choose-doctor.svg" alt="Choose a doctor">
+            </div>
+            <p>You can filter doctors by specialty, availability, or location to find the perfect match for your healthcare needs.</p>
+          </div>
+          
+          <!-- Step 2: Fill up form -->
+          <div *ngIf="currentStep === 2" class="step-panel">
+            <h3>Step 2: Fill Up the Appointment Form</h3>
+            <p>Provide your personal information and details about your health concerns.</p>
+            <div class="step-image">
+              <img src="assets/images/fill-form.svg" alt="Fill up form">
+            </div>
+            <p>The information you provide helps your doctor prepare for your appointment and ensures you receive the best care possible.</p>
+          </div>
+          
+          <!-- Step 3: Scan GCash reference -->
+          <div *ngIf="currentStep === 3" class="step-panel">
+            <h3>Step 3: Scan GCash Reference Number</h3>
+            <p>Use your GCash app to scan the QR code and make your consultation fee payment.</p>
+            <div class="step-image">
+              <img src="assets/images/scan-qr.svg" alt="Scan GCash reference">
+            </div>
+            <p>Our secure payment system ensures your transaction is safe and immediately processed.</p>
+          </div>
+          
+          <!-- Step 4: Upload payment receipt -->
+          <div *ngIf="currentStep === 4" class="step-panel">
+            <h3>Step 4: Upload Payment Receipt</h3>
+            <p>Take a screenshot or photo of your payment confirmation and upload it to verify your payment.</p>
+            <div class="step-image">
+              <img src="assets/images/upload-receipt.svg" alt="Upload payment receipt">
+            </div>
+            <p>This confirmation helps us validate your payment quickly and proceed with your appointment booking.</p>
+          </div>
+          
+          <!-- Step 5: Wait for confirmation -->
+          <div *ngIf="currentStep === 5" class="step-panel">
+            <h3>Step 5: Wait for Confirmation</h3>
+            <p>Once your booking is processed, you'll receive a confirmation notification.</p>
+            <div class="step-image">
+              <img src="assets/images/confirmation.svg" alt="Wait for confirmation">
+            </div>
+            <p>You'll receive an email and SMS with your appointment details, including date, time, and doctor information.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-secondary" *ngIf="currentStep > 1" (click)="prevStep()">Previous</button>
+      <button class="btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()">Next</button>
+      <button class="btn-success" *ngIf="currentStep === totalSteps" (click)="closeModal()">Got it!</button>
+    </div>
+  </div>
+</div> 

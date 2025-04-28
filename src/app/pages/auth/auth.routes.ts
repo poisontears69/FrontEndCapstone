@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 export const AUTH_ROUTES: Routes = [
   {
@@ -19,13 +20,12 @@ export const AUTH_ROUTES: Routes = [
         path: 'forgot-password',
         component: ForgotPasswordComponent
       },
-      // These routes will be implemented later
-      /*
       {
         path: 'reset-password',
-        loadComponent: () => import('./reset-password/reset-password.component')
-          .then(m => m.ResetPasswordComponent),
+        component: ResetPasswordComponent
       },
+      // These routes will be implemented later
+      /*
       {
         path: 'verify-email',
         loadComponent: () => import('./verify-email/verify-email.component')

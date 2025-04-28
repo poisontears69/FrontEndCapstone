@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService, ForgotPasswordRequest } from '../../../core/services/auth.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, HttpClientModule]
 })
 export class ForgotPasswordComponent {
   forgotPasswordForm: FormGroup;
@@ -18,7 +20,8 @@ export class ForgotPasswordComponent {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.forgotPasswordForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
@@ -34,19 +37,28 @@ export class ForgotPasswordComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // This would be replaced with an actual auth service call
-    setTimeout(() => {
-      const { email } = this.forgotPasswordForm.value;
-      
-      // In a real app, this would send a reset link to the user's email
-      console.log('Password reset requested for:', email);
-      
-      this.successMessage = 'Password reset instructions have been sent to your email.';
-      this.isLoading = false;
-    }, 1500); // Simulate network request
+    const forgotPasswordRequest: ForgotPasswordRequest = {
+      email: this.forgotPasswordForm.value.email
+    };
+
+    this.authService.forgotPassword(forgotPasswordRequest).subscribe({
+      next: (response) => {
+        this.successMessage = 'Password reset instructions have been sent to your email.';
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Forgot password error', error);
+        this.errorMessage = error.error?.message || 'Failed to send reset instructions. Please try again.';
+        this.isLoading = false;
+      }
+    });
   }
 
   navigateToLogin(): void {
     this.router.navigate(['/auth/login']);
+  }
+  
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
   }
 } 

@@ -1,30 +1,47 @@
 import { Routes } from '@angular/router';
+import { PatientLayoutComponent } from './patient-layout/patient-layout.component';
+import { PatientHomeComponent } from './home/patient-home.component';
 
 export const PATIENT_ROUTES: Routes = [
   {
     path: '',
+    component: PatientLayoutComponent,
     children: [
-      // Placeholder for patient dashboard
+      // Default route redirects to home
       {
         path: '',
-        redirectTo: 'appointments',
+        redirectTo: 'home',
         pathMatch: 'full'
+      },
+      
+      // Home route
+      {
+        path: 'home',
+        component: PatientHomeComponent
       },
       
       // Routes will be added as components are created
       // {
-      //   path: 'book-appointment',
-      //   component: BookAppointmentComponent
+      //   path: 'doctors',
+      //   component: PatientDoctorsComponent
       // },
       // {
-      //   path: 'appointments',
-      //   component: PatientAppointmentsComponent
+      //   path: 'messages',
+      //   component: PatientMessagesComponent
+      // },
+      // {
+      //   path: 'files',
+      //   component: PatientFilesComponent
+      // },
+      // {
+      //   path: 'settings',
+      //   component: PatientSettingsComponent
       // },
 
       // Default fallback
       {
         path: '**',
-        redirectTo: ''
+        redirectTo: 'home'
       }
     ]
   }

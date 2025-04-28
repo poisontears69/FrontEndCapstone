@@ -1,0 +1,52 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome to the HealthConnect admin dashboard</p>
+  </div>
+  
+  <div class="dashboard-cards">
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="card-content">
+        <h3>Total Users</h3>
+        <p class="card-value">{{ totalUsers }}</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-user-md"></i>
+      </div>
+      <div class="card-content">
+        <h3>Doctors</h3>
+        <p class="card-value">{{ totalDoctors }}</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-hospital-user"></i>
+      </div>
+      <div class="card-content">
+        <h3>Patients</h3>
+        <p class="card-value">{{ totalPatients }}</p>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-icon">
+        <i class="fas fa-clipboard-check"></i>
+      </div>
+      <div class="card-content">
+        <h3>Pending Verifications</h3>
+        <p class="card-value">{{ pendingVerifications }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="dashboard-message">
+    <p>Note: This dashboard currently displays simulated data. Connect to backend APIs for real statistics.</p>
+  </div>
+</div> 

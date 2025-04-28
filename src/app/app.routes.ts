@@ -2,11 +2,20 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { adminGuard } from './core/guards/admin-auth.guard';
+import { PrivacyPolicyComponent } from './pages/legal/privacy-policy/privacy-policy.component';
+import { TermsOfServiceComponent } from './pages/legal/terms-of-service/terms-of-service.component';
+import { LegalRedirectComponent } from './pages/legal/legal-redirect.component';
 
 export const routes: Routes = [
   // Common routes
   { path: '', component: HomeComponent },
   { path: 'home', component: HomeComponent },
+  
+  // Legal routes
+  { path: 'legal/privacy-policy', component: PrivacyPolicyComponent },
+  { path: 'legal/terms-of-service', component: TermsOfServiceComponent },
+  { path: 'legal/redirect', component: LegalRedirectComponent },
   
   // Patient routes
   { 
@@ -27,7 +36,7 @@ export const routes: Routes = [
   // Admin routes
   { 
     path: 'admin', 
-    canActivate: [authGuard, roleGuard(['admin'])],
+    canActivate: [adminGuard],
     loadChildren: () => import('./pages/admin/admin.routes')
       .then(m => m.ADMIN_ROUTES) 
   },

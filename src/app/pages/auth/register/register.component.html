@@ -88,6 +88,35 @@
         </div>
       </div>
       
+      <!-- Account Type Selection -->
+      <div class="form-group">
+        <label>Account Type</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input 
+              type="radio" 
+              id="patientRole" 
+              formControlName="role" 
+              value="patient"
+            >
+            <label for="patientRole">Patient</label>
+          </div>
+          <div class="radio-option">
+            <input 
+              type="radio" 
+              id="doctorRole" 
+              formControlName="role" 
+              value="doctor"
+            >
+            <label for="doctorRole">Doctor</label>
+          </div>
+        </div>
+        <div class="validation-error" *ngIf="registerForm.get('role')?.invalid && 
+                                          (registerForm.get('role')?.touched || registerForm.get('role')?.dirty)">
+          <span *ngIf="registerForm.get('role')?.errors?.['required']">Please select an account type</span>
+        </div>
+      </div>
+      
       <!-- Terms Acceptance Checkbox -->
       <div class="form-group">
         <div class="checkbox-container">
@@ -98,7 +127,7 @@
             [class.is-invalid]="registerForm.get('termsAccepted')?.invalid && 
                               (registerForm.get('termsAccepted')?.touched || registerForm.get('termsAccepted')?.dirty)"
           >
-          <label for="termsAccepted">I accept the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+          <label for="termsAccepted">I accept the <a href="/legal/terms-of-service" target="_blank">Terms of Service</a> and <a href="/legal/privacy-policy" target="_blank">Privacy Policy</a></label>
         </div>
         <div class="validation-error" *ngIf="registerForm.get('termsAccepted')?.invalid && 
                                            (registerForm.get('termsAccepted')?.touched || registerForm.get('termsAccepted')?.dirty)">
@@ -114,7 +143,14 @@
     </form>
     
     <div class="register-footer">
-      <p>Already have an account? <a href="javascript:void(0)" (click)="navigateToLogin()">Sign in</a></p>
+      <div class="navigation-links">
+        <a href="javascript:void(0)" (click)="navigateToHome()" class="link-btn">
+          <i class="fas fa-home"></i> Go to Home
+        </a>
+        <a href="javascript:void(0)" (click)="navigateToLogin()" class="link-btn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+      </div>
     </div>
   </div>
 </div> 
