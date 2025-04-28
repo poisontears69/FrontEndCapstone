@@ -24,9 +24,10 @@
           <button class="btn-outline" (click)="scrollToFeatures()">Learn More</button>
         </div>
       </div>
-      <div class="hero-image">
-        <!-- Replace with an actual image -->
-        <div class="placeholder-image"></div>
+      <div class="">
+        <div class="placeholder-image">
+          <img src="/hero.png" alt="Hero Image" style="width: 520px; height: auto;">
+        </div>
       </div>
     </div>
   </section>
@@ -37,44 +38,61 @@
       <h2>Why Choose HealthConnect</h2>
       <p>Our platform offers a comprehensive suite of tools for patients and healthcare providers</p>
     </div>
+    
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">
-          <i class="icon-calendar"></i>
+          <img src="/c1.png" alt="Easy Scheduling">
         </div>
         <h3>Easy Scheduling</h3>
         <p>Book appointments with your preferred doctors in just a few clicks, 24/7.</p>
       </div>
+  
       <div class="feature-card">
         <div class="feature-icon">
-          <i class="icon-doctor"></i>
+          <img src="/d1.png" alt="Expert Specialists">
         </div>
         <h3>Expert Specialists</h3>
         <p>Connect with qualified healthcare professionals across various specialties.</p>
       </div>
+  
       <div class="feature-card">
         <div class="feature-icon">
-          <i class="icon-records"></i>
+          <img src="/b1.png" alt="Medical Records">
         </div>
         <h3>Medical Records</h3>
         <p>Access and share your medical history securely with your healthcare providers.</p>
       </div>
+  
       <div class="feature-card">
         <div class="feature-icon">
-          <i class="icon-notification"></i>
+          <img src="/n1.png" alt="Reminders and Notifications">
         </div>
         <h3>Reminders & Notifications</h3>
         <p>Never miss an appointment with timely reminders and notifications.</p>
       </div>
     </div>
   </section>
+  
+  <style>
+    .feature-icon img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%; /* make it a circle */
+      object-fit: cover; /* nicely crop the image */
+      border: 2px solid #ccc; /* optional border around */
+      background-color: #f9f9f9; /* optional background color */
+      padding: 0px; /* optional space inside */
+    }
+  </style>
+  
 
   <!-- For Patients Section -->
   <section class="for-patients">
     <div class="section-container">
       <div class="section-image">
         <!-- Replace with an actual image -->
-        <div class="placeholder-image"></div>
+        <img src="/patient2.png" alt="Hero Image" style="width: 520px; height: auto;">
       </div>
       <div class="section-content">
         <h2>For Patients</h2>
@@ -106,9 +124,9 @@
         </ul>
         <button class="btn-secondary" (click)="navigateToRegister()">Register as a Doctor</button>
       </div>
-      <div class="section-image">
+      <div class="">
         <!-- Replace with an actual image -->
-        <div class="placeholder-image"></div>
+        <div class="placeholder-image"><img src="/doctor1.png" alt="Hero Image" style="width: 568px; height: auto;"></div>
       </div>
     </div>
   </section>
@@ -120,44 +138,65 @@
       <p>Hear from patients and doctors who use HealthConnect every day</p>
     </div>
     <div class="testimonials-grid">
+      
       <div class="testimonial-card">
         <div class="testimonial-content">
           <p>"HealthConnect has transformed how I manage my medical appointments. Finding a specialist and booking appointments is now incredibly simple."</p>
         </div>
         <div class="testimonial-author">
-          <div class="author-avatar"></div>
+          <div class="author-avatar">
+            <img src="/p1.png" alt="Sarah Johnson">
+          </div>
           <div class="author-info">
             <h4>Sarah Johnson</h4>
             <p>Patient</p>
           </div>
         </div>
       </div>
+  
       <div class="testimonial-card">
         <div class="testimonial-content">
           <p>"As a physician, HealthConnect has helped me streamline my practice. The scheduling system has reduced administrative work and improved patient communication."</p>
         </div>
         <div class="testimonial-author">
-          <div class="author-avatar"></div>
+          <div class="author-avatar">
+            <img src="/p2.png" alt="Dr. Michael Chen">
+          </div>
           <div class="author-info">
             <h4>Dr. Michael Chen</h4>
             <p>Cardiologist</p>
           </div>
         </div>
       </div>
+  
       <div class="testimonial-card">
         <div class="testimonial-content">
           <p>"The platform's reminders have been a game-changer for managing my family's healthcare needs. We've never missed an appointment since using HealthConnect."</p>
         </div>
         <div class="testimonial-author">
-          <div class="author-avatar"></div>
+          <div class="author-avatar">
+            <img src="/p3.png" alt="Robert Garcia">
+          </div>
           <div class="author-info">
             <h4>Robert Garcia</h4>
             <p>Patient</p>
           </div>
         </div>
       </div>
+  
     </div>
   </section>
+  
+  <style>
+    .author-avatar img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%; /* this makes the image a circle */
+      object-fit: cover; /* ensures the image covers the circle without distortion */
+      border: 2px solid #ccc; /* optional: adds a soft border around the avatar */
+    }
+  </style>
+  
 
   <!-- CTA Section -->
   <section class="cta">
