@@ -298,3 +298,89 @@ $transition: all 0.3s ease;
     }
   }
 } 
+
+.register-footer {
+  text-align: center;
+  padding: 20px 30px;
+  border-top: 1px solid $border-color;
+  background-color: $secondary-color;
+  
+  .navigation-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    
+    .link-btn {
+      padding: 8px 16px;
+      background-color: white;
+      border-radius: 6px;
+      color: $primary-color;
+      text-decoration: none;
+      font-weight: 500;
+      transition: $transition;
+      border: 1px solid $border-color;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      
+      &:hover {
+        background-color: $primary-color;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      i {
+        margin-right: 5px;
+      }
+    }
+  }
+  
+  p {
+    margin: 0;
+    color: $text-light;
+    font-size: 0.95rem;
+    
+    a {
+      color: $primary-color;
+      text-decoration: none;
+      font-weight: 500;
+      transition: $transition;
+      
+      &:hover {
+        color: $primary-dark;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Responsive styles with cleaner breakpoints
+@media (max-width: 576px) {
+  .register-card {
+    max-width: 100%;
+  }
+  
+  .register-header {
+    padding: 25px 20px 15px;
+    
+    h1 {
+      font-size: 1.75rem;
+    }
+  }
+  
+  .register-form {
+    padding: 0 20px 20px;
+    
+    .radio-group {
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .btn-primary {
+      padding: 12px;
+    }
+  }
+  
+  .register-footer {
+    padding: 15px 20px;
+  }
+} 

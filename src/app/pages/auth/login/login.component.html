@@ -61,6 +61,17 @@
         <span *ngIf="!isLoading">Sign In</span>
         <span *ngIf="isLoading">Signing In...</span>
       </button>
+
+      <div class="register-footer">
+        <div class="navigation-links">
+          <a href="javascript:void(0)" (click)="navigateToHome()" class="link-btn">
+            <i class="fas fa-home"></i> Go to Home
+          </a>
+          <a href="javascript:void(0)" (click)="navigateToRegister()" class="link-btn">
+            <i class="fas fa-sign-in-alt"></i> Sign Up
+          </a>
+        </div>
+      </div>
     </form>
   </div>
 </div> 
