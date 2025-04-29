@@ -1,0 +1,298 @@
+<div class="settings-container">
+  <!-- Header -->
+  <div class="settings-header">
+    <div class="title-section">
+      <h1>Settings</h1>
+      <p>Manage your account settings and preferences</p>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    <i class="fas fa-check-circle"></i>
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Settings Tabs -->
+  <div class="settings-tabs">
+    <button 
+      [class.active]="activeTab === 'notifications'"
+      (click)="setActiveTab('notifications')"
+    >
+      <i class="fas fa-bell"></i> Notifications
+    </button>
+    <button 
+      [class.active]="activeTab === 'privacy'"
+      (click)="setActiveTab('privacy')"
+    >
+      <i class="fas fa-shield-alt"></i> Privacy
+    </button>
+    <button 
+      [class.active]="activeTab === 'accounts'"
+      (click)="setActiveTab('accounts')"
+    >
+      <i class="fas fa-link"></i> Connected Accounts
+    </button>
+    <button 
+      [class.active]="activeTab === 'appearance'"
+      (click)="setActiveTab('appearance')"
+    >
+      <i class="fas fa-palette"></i> Appearance
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading settings...</p>
+  </div>
+
+  <!-- Notifications Tab -->
+  <div class="tab-content" *ngIf="!loading && activeTab === 'notifications'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Notification Preferences</h2>
+        <p>Choose how and when you'd like to be notified</p>
+      </div>
+      <div class="card-body">
+        <div class="notification-channels">
+          <div class="channel-header">
+            <div class="channel-name">Notification Type</div>
+            <div class="channel-option">Email</div>
+            <div class="channel-option">SMS</div>
+            <div class="channel-option">Push</div>
+          </div>
+          
+          <div class="notification-setting" *ngFor="let setting of notificationSettings">
+            <div class="setting-info">
+              <h3>{{ setting.name }}</h3>
+              <p>{{ setting.description }}</p>
+            </div>
+            <div class="setting-toggles">
+              <div class="toggle-wrapper">
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="setting.email" (change)="updateNotificationSetting(setting)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-wrapper">
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="setting.sms" (change)="updateNotificationSetting(setting)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="toggle-wrapper">
+                <label class="toggle">
+                  <input type="checkbox" [(ngModel)]="setting.push" (change)="updateNotificationSetting(setting)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Tab -->
+  <div class="tab-content" *ngIf="!loading && activeTab === 'privacy'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Privacy Settings</h2>
+        <p>Control how your information is shared and used</p>
+      </div>
+      <div class="card-body">
+        <div class="privacy-settings">
+          <div class="privacy-setting" *ngFor="let setting of privacySettings">
+            <div class="setting-info">
+              <h3>{{ setting.name }}</h3>
+              <p>{{ setting.description }}</p>
+            </div>
+            <div class="setting-toggle">
+              <label class="toggle">
+                <input type="checkbox" [(ngModel)]="setting.enabled" (change)="updatePrivacySetting(setting)">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Security</h2>
+        <p>Manage your account security settings</p>
+      </div>
+      <div class="card-body">
+        <div class="security-section">
+          <h3>Change Password</h3>
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input 
+                type="password" 
+                id="currentPassword" 
+                formControlName="currentPassword" 
+                class="form-control"
+              >
+              <div class="error-message" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['required']">
+                Current password is required
+              </div>
+              <div class="error-message" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['minlength']">
+                Password must be at least 8 characters
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input 
+                type="password" 
+                id="newPassword" 
+                formControlName="newPassword" 
+                class="form-control"
+              >
+              <div class="error-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['required']">
+                New password is required
+              </div>
+              <div class="error-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']">
+                Password must be at least 8 characters
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input 
+                type="password" 
+                id="confirmPassword" 
+                formControlName="confirmPassword" 
+                class="form-control"
+              >
+              <div class="error-message" *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.errors?.['required']">
+                Please confirm your password
+              </div>
+              <div class="error-message" *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched">
+                Passwords do not match
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || saving">
+                <span *ngIf="saving">Changing...</span>
+                <span *ngIf="!saving">Change Password</span>
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="security-section">
+          <h3>Export Your Data</h3>
+          <p>Download a copy of your personal data and medical records.</p>
+          <button 
+            class="btn btn-secondary" 
+            (click)="requestDataExport()" 
+            [disabled]="exportRequested || saving"
+          >
+            <i class="fas fa-download"></i>
+            {{ exportRequested ? 'Request Sent' : 'Request Data Export' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Connected Accounts Tab -->
+  <div class="tab-content" *ngIf="!loading && activeTab === 'accounts'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Connected Accounts</h2>
+        <p>Manage external services connected to your account</p>
+      </div>
+      <div class="card-body">
+        <div class="accounts-list">
+          <div class="account-item" *ngFor="let account of connectedAccounts">
+            <div class="account-info">
+              <div class="account-icon">
+                <i [class]="account.icon"></i>
+              </div>
+              <div class="account-details">
+                <h3>{{ account.provider }}</h3>
+                <p>{{ account.accountName }}</p>
+              </div>
+            </div>
+            <div class="account-action">
+              <button 
+                class="btn" 
+                [class.btn-disconnect]="account.connected" 
+                [class.btn-connect]="!account.connected"
+                (click)="toggleConnectedAccount(account)"
+              >
+                {{ account.connected ? 'Disconnect' : 'Connect' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appearance Tab -->
+  <div class="tab-content" *ngIf="!loading && activeTab === 'appearance'">
+    <div class="settings-card">
+      <div class="card-header">
+        <h2>Appearance Settings</h2>
+        <p>Customize how the application looks for you</p>
+      </div>
+      <div class="card-body">
+        <div class="appearance-section">
+          <h3>Theme</h3>
+          <div class="theme-options">
+            <div class="theme-option">
+              <div class="theme-preview light-theme" [class.selected]="!darkMode"></div>
+              <label>
+                <input 
+                  type="radio" 
+                  name="theme" 
+                  [checked]="!darkMode" 
+                  (change)="darkMode ? toggleDarkMode() : null"
+                >
+                Light
+              </label>
+            </div>
+            <div class="theme-option">
+              <div class="theme-preview dark-theme" [class.selected]="darkMode"></div>
+              <label>
+                <input 
+                  type="radio" 
+                  name="theme" 
+                  [checked]="darkMode" 
+                  (change)="!darkMode ? toggleDarkMode() : null"
+                >
+                Dark
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="appearance-section">
+          <h3>Font Size</h3>
+          <div class="font-options">
+            <div 
+              class="font-option" 
+              *ngFor="let option of fontSizeOptions"
+              [class.selected]="fontSize === option.id"
+              (click)="changeFontSize(option.id)"
+            >
+              <div class="font-preview" [ngClass]="'font-size-' + option.id">Aa</div>
+              <span>{{ option.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

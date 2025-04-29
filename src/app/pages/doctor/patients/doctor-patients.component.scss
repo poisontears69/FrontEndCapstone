@@ -1,0 +1,333 @@
+.patients-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+// Loading spinner
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  
+  p {
+    margin-top: 15px;
+    color: #6c757d;
+  }
+}
+
+.patients-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Header
+.patients-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h2 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    
+    i {
+      color: #007bff;
+    }
+  }
+  
+  .patients-count {
+    background-color: #e9f5ff;
+    color: #007bff;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+}
+
+// Search bar
+.search-container {
+  margin-bottom: 15px;
+  
+  .search-input-wrapper {
+    position: relative;
+    width: 100%;
+    
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 12px 15px 12px 45px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+      transition: all 0.3s;
+      
+      &:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+      
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+    
+    .clear-search-btn {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.9rem;
+      
+      &:hover {
+        color: #dc3545;
+      }
+    }
+  }
+}
+
+// Phonebook container
+.phonebook-container {
+  display: flex;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  height: calc(100vh - 250px);
+  min-height: 500px;
+}
+
+// Alphabet index
+.alphabet-index {
+  width: 40px;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-right: 1px solid #e9ecef;
+  
+  .index-item {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #6c757d;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    padding: 5px 0;
+    
+    &.active {
+      color: #007bff;
+      font-weight: 700;
+    }
+    
+    &.disabled {
+      color: #ced4da;
+      cursor: default;
+    }
+    
+    &:hover:not(.disabled) {
+      background-color: #e9f5ff;
+    }
+  }
+}
+
+// Patient list container
+.patient-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  position: relative;
+  
+  // No results
+  .no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px;
+    text-align: center;
+    
+    .no-results-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      
+      i {
+        font-size: 2rem;
+        color: #adb5bd;
+      }
+    }
+    
+    h3 {
+      font-size: 1.2rem;
+      color: #495057;
+      margin-bottom: 5px;
+    }
+    
+    p {
+      color: #adb5bd;
+      margin: 0;
+    }
+  }
+  
+  // Patient groups
+  .patient-groups {
+    .patient-group {
+      margin-bottom: 15px;
+      
+      .group-header {
+        background-color: #f8f9fa;
+        padding: 8px 15px;
+        font-weight: 700;
+        color: #495057;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      
+      .patient-items {
+        .patient-item {
+          display: flex;
+          align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid #f8f9fa;
+          transition: all 0.2s;
+          cursor: pointer;
+          
+          &:hover {
+            background-color: #e9f5ff;
+          }
+          
+          .patient-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+            border: 1px solid #e9ecef;
+            
+            img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+          }
+          
+          .patient-info {
+            flex: 1;
+            
+            .patient-name {
+              font-weight: 600;
+              color: #2c3e50;
+              margin-bottom: 5px;
+            }
+            
+            .patient-details {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 10px;
+              font-size: 0.85rem;
+              color: #6c757d;
+              
+              .patient-phone,
+              .patient-email {
+                display: flex;
+                align-items: center;
+                
+                i {
+                  margin-right: 5px;
+                  font-size: 0.8rem;
+                  width: 16px;
+                  text-align: center;
+                }
+              }
+            }
+          }
+          
+          .patient-status {
+            margin-left: 10px;
+            
+            .upcoming-badge {
+              background-color: #d4edda;
+              color: #155724;
+              font-size: 0.75rem;
+              padding: 3px 8px;
+              border-radius: 30px;
+              white-space: nowrap;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Media queries
+@media (max-width: 767px) {
+  .phonebook-container {
+    flex-direction: column;
+    height: auto;
+    min-height: auto;
+    max-height: 70vh;
+  }
+  
+  .alphabet-index {
+    width: 100%;
+    height: 40px;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 10px;
+    justify-content: flex-start;
+    
+    .index-item {
+      padding: 0 8px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+  }
+  
+  .patient-list-container {
+    max-height: calc(70vh - 40px);
+  }
+  
+  .patient-item {
+    .patient-details {
+      flex-direction: column;
+      gap: 3px !important;
+    }
+    
+    .patient-status {
+      display: none;
+    }
+  }
+} 

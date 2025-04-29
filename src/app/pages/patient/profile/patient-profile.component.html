@@ -1,0 +1,566 @@
+<div class="profile-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your profile...</p>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && patientProfile">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar-container">
+        <img [src]="patientProfile.avatar" alt="Profile Picture" class="avatar" />
+        <div class="avatar-overlay" (click)="fileInput.click()">
+          <i class="fas fa-camera"></i>
+        </div>
+        <input #fileInput type="file" hidden (change)="uploadProfilePicture($event)" accept="image/*" />
+      </div>
+      <div class="user-info">
+        <h2>{{ patientProfile.firstName }} {{ patientProfile.lastName }}</h2>
+        <p class="user-email">{{ patientProfile.email }}</p>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      <i class="fas fa-check-circle"></i> {{ successMessage }}
+    </div>
+    <div class="alert alert-danger" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+      <button [class.active]="activeTab === 'personal'" (click)="setActiveTab('personal')">
+        Personal Information
+      </button>
+      <button [class.active]="activeTab === 'medical'" (click)="setActiveTab('medical')">
+        Medical History
+      </button>
+      <button [class.active]="activeTab === 'security'" (click)="setActiveTab('security')">
+        Account & Security
+      </button>
+    </div>
+
+    <!-- Personal Information Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'personal'">
+      <!-- Personal Information Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Personal Information</h3>
+          <button class="btn btn-outline" *ngIf="!editingPersonalInfo" (click)="startEditingPersonalInfo()">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <div class="card-body">
+          <ng-container *ngIf="!editingPersonalInfo">
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">First Name</span>
+                <span class="value">{{ patientProfile.firstName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Last Name</span>
+                <span class="value">{{ patientProfile.lastName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Email</span>
+                <span class="value">{{ patientProfile.email }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Date of Birth</span>
+                <span class="value">{{ patientProfile.dateOfBirth | date:'mediumDate' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Gender</span>
+                <span class="value">{{ patientProfile.gender | titlecase }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Blood Group</span>
+                <span class="value">{{ patientProfile.bloodGroup || 'Not specified' }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <form *ngIf="editingPersonalInfo" [formGroup]="personalInfoForm" (ngSubmit)="savePersonalInfo()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" formControlName="firstName" class="form-control" />
+                <div class="error-message" *ngIf="personalInfoForm.get('firstName')?.touched && personalInfoForm.get('firstName')?.errors?.['required']">
+                  First name is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" formControlName="lastName" class="form-control" />
+                <div class="error-message" *ngIf="personalInfoForm.get('lastName')?.touched && personalInfoForm.get('lastName')?.errors?.['required']">
+                  Last name is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" formControlName="email" class="form-control" />
+                <div class="error-message" *ngIf="personalInfoForm.get('email')?.touched && personalInfoForm.get('email')?.errors?.['required']">
+                  Email is required
+                </div>
+                <div class="error-message" *ngIf="personalInfoForm.get('email')?.touched && personalInfoForm.get('email')?.errors?.['email']">
+                  Please enter a valid email
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="dateOfBirth">Date of Birth</label>
+                <input type="date" id="dateOfBirth" formControlName="dateOfBirth" class="form-control" />
+                <div class="error-message" *ngIf="personalInfoForm.get('dateOfBirth')?.touched && personalInfoForm.get('dateOfBirth')?.errors?.['required']">
+                  Date of birth is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" formControlName="gender" class="form-control">
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                <div class="error-message" *ngIf="personalInfoForm.get('gender')?.touched && personalInfoForm.get('gender')?.errors?.['required']">
+                  Gender is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="bloodGroup">Blood Group</label>
+                <select id="bloodGroup" formControlName="bloodGroup" class="form-control">
+                  <option value="">Select blood group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" (click)="cancelEditing('personal')">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="saving">
+                <span *ngIf="saving">Saving...</span>
+                <span *ngIf="!saving">Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Contact Information</h3>
+          <button class="btn btn-outline" *ngIf="!editingContact" (click)="startEditingContact()">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <div class="card-body">
+          <ng-container *ngIf="!editingContact">
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Phone Number</span>
+                <span class="value">{{ patientProfile.phoneNumber }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Address</span>
+                <span class="value">{{ patientProfile.address.street }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">City</span>
+                <span class="value">{{ patientProfile.address.city }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">State</span>
+                <span class="value">{{ patientProfile.address.state }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Zip Code</span>
+                <span class="value">{{ patientProfile.address.zipCode }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Country</span>
+                <span class="value">{{ patientProfile.address.country }}</span>
+              </div>
+            </div>
+
+            <h4>Emergency Contact</h4>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Name</span>
+                <span class="value">{{ patientProfile.emergencyContact.name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Relationship</span>
+                <span class="value">{{ patientProfile.emergencyContact.relationship }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Phone Number</span>
+                <span class="value">{{ patientProfile.emergencyContact.phoneNumber }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <form *ngIf="editingContact" [formGroup]="contactInfoForm" (ngSubmit)="saveContactInfo()">
+            <div class="form-group">
+              <label for="phoneNumber">Phone Number</label>
+              <input type="tel" id="phoneNumber" formControlName="phoneNumber" class="form-control" />
+              <div class="error-message" *ngIf="contactInfoForm.get('phoneNumber')?.touched && contactInfoForm.get('phoneNumber')?.errors?.['required']">
+                Phone number is required
+              </div>
+            </div>
+
+            <h4>Address</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="street">Street Address</label>
+                <input type="text" id="street" formControlName="street" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('street')?.touched && contactInfoForm.get('street')?.errors?.['required']">
+                  Street address is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" formControlName="city" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('city')?.touched && contactInfoForm.get('city')?.errors?.['required']">
+                  City is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" formControlName="state" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('state')?.touched && contactInfoForm.get('state')?.errors?.['required']">
+                  State is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="zipCode">Zip Code</label>
+                <input type="text" id="zipCode" formControlName="zipCode" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('zipCode')?.touched && contactInfoForm.get('zipCode')?.errors?.['required']">
+                  Zip code is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" id="country" formControlName="country" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('country')?.touched && contactInfoForm.get('country')?.errors?.['required']">
+                  Country is required
+                </div>
+              </div>
+            </div>
+
+            <h4>Emergency Contact</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="emergencyName">Name</label>
+                <input type="text" id="emergencyName" formControlName="emergencyName" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('emergencyName')?.touched && contactInfoForm.get('emergencyName')?.errors?.['required']">
+                  Emergency contact name is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="emergencyRelationship">Relationship</label>
+                <input type="text" id="emergencyRelationship" formControlName="emergencyRelationship" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('emergencyRelationship')?.touched && contactInfoForm.get('emergencyRelationship')?.errors?.['required']">
+                  Relationship is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="emergencyPhone">Phone Number</label>
+                <input type="tel" id="emergencyPhone" formControlName="emergencyPhone" class="form-control" />
+                <div class="error-message" *ngIf="contactInfoForm.get('emergencyPhone')?.touched && contactInfoForm.get('emergencyPhone')?.errors?.['required']">
+                  Emergency contact phone is required
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" (click)="cancelEditing('contact')">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="saving">
+                <span *ngIf="saving">Saving...</span>
+                <span *ngIf="!saving">Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Insurance Information Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Insurance Information</h3>
+          <button class="btn btn-outline" *ngIf="!editingInsurance" (click)="startEditingInsurance()">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <div class="card-body">
+          <ng-container *ngIf="!editingInsurance">
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="label">Provider</span>
+                <span class="value">{{ patientProfile.insurance.provider }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Policy Number</span>
+                <span class="value">{{ patientProfile.insurance.policyNumber }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Group Number</span>
+                <span class="value">{{ patientProfile.insurance.groupNumber || 'Not specified' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="label">Expiry Date</span>
+                <span class="value">{{ patientProfile.insurance.expiryDate | date:'mediumDate' }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <form *ngIf="editingInsurance" [formGroup]="insuranceInfoForm" (ngSubmit)="saveInsuranceInfo()">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="provider">Provider</label>
+                <input type="text" id="provider" formControlName="provider" class="form-control" />
+                <div class="error-message" *ngIf="insuranceInfoForm.get('provider')?.touched && insuranceInfoForm.get('provider')?.errors?.['required']">
+                  Provider is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="policyNumber">Policy Number</label>
+                <input type="text" id="policyNumber" formControlName="policyNumber" class="form-control" />
+                <div class="error-message" *ngIf="insuranceInfoForm.get('policyNumber')?.touched && insuranceInfoForm.get('policyNumber')?.errors?.['required']">
+                  Policy number is required
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="groupNumber">Group Number</label>
+                <input type="text" id="groupNumber" formControlName="groupNumber" class="form-control" />
+              </div>
+              <div class="form-group">
+                <label for="expiryDate">Expiry Date</label>
+                <input type="date" id="expiryDate" formControlName="expiryDate" class="form-control" />
+                <div class="error-message" *ngIf="insuranceInfoForm.get('expiryDate')?.touched && insuranceInfoForm.get('expiryDate')?.errors?.['required']">
+                  Expiry date is required
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" (click)="cancelEditing('insurance')">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="saving">
+                <span *ngIf="saving">Saving...</span>
+                <span *ngIf="!saving">Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical History Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'medical'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Medical History</h3>
+          <button class="btn btn-outline" *ngIf="!editingMedicalInfo" (click)="startEditingMedicalInfo()">
+            <i class="fas fa-edit"></i> Edit
+          </button>
+        </div>
+        <div class="card-body">
+          <ng-container *ngIf="!editingMedicalInfo">
+            <div class="medical-history">
+              <div class="medical-section">
+                <h4>Allergies</h4>
+                <ul *ngIf="patientProfile.medicalInfo.allergies.length">
+                  <li *ngFor="let allergy of patientProfile.medicalInfo.allergies">{{ allergy }}</li>
+                </ul>
+                <p *ngIf="!patientProfile.medicalInfo.allergies.length" class="no-data">No allergies recorded</p>
+              </div>
+              
+              <div class="medical-section">
+                <h4>Chronic Conditions</h4>
+                <ul *ngIf="patientProfile.medicalInfo.chronicConditions.length">
+                  <li *ngFor="let condition of patientProfile.medicalInfo.chronicConditions">{{ condition }}</li>
+                </ul>
+                <p *ngIf="!patientProfile.medicalInfo.chronicConditions.length" class="no-data">No chronic conditions recorded</p>
+              </div>
+              
+              <div class="medical-section">
+                <h4>Current Medications</h4>
+                <ul *ngIf="patientProfile.medicalInfo.currentMedications.length">
+                  <li *ngFor="let medication of patientProfile.medicalInfo.currentMedications">{{ medication }}</li>
+                </ul>
+                <p *ngIf="!patientProfile.medicalInfo.currentMedications.length" class="no-data">No current medications recorded</p>
+              </div>
+              
+              <div class="medical-section">
+                <h4>Past Surgeries</h4>
+                <ul *ngIf="patientProfile.medicalInfo.pastSurgeries.length">
+                  <li *ngFor="let surgery of patientProfile.medicalInfo.pastSurgeries">{{ surgery }}</li>
+                </ul>
+                <p *ngIf="!patientProfile.medicalInfo.pastSurgeries.length" class="no-data">No past surgeries recorded</p>
+              </div>
+              
+              <div class="medical-section">
+                <h4>Family History</h4>
+                <ul *ngIf="patientProfile.medicalInfo.familyHistory.length">
+                  <li *ngFor="let history of patientProfile.medicalInfo.familyHistory">{{ history }}</li>
+                </ul>
+                <p *ngIf="!patientProfile.medicalInfo.familyHistory.length" class="no-data">No family history recorded</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <form *ngIf="editingMedicalInfo" [formGroup]="medicalInfoForm" (ngSubmit)="saveMedicalInfo()">
+            <div class="form-group">
+              <label for="allergies">Allergies</label>
+              <textarea id="allergies" formControlName="allergies" class="form-control" rows="3" placeholder="Enter allergies, separated by commas"></textarea>
+              <small class="form-text text-muted">Enter allergies separated by commas</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="chronicConditions">Chronic Conditions</label>
+              <textarea id="chronicConditions" formControlName="chronicConditions" class="form-control" rows="3" placeholder="Enter chronic conditions, separated by commas"></textarea>
+              <small class="form-text text-muted">Enter chronic conditions separated by commas</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="currentMedications">Current Medications</label>
+              <textarea id="currentMedications" formControlName="currentMedications" class="form-control" rows="3" placeholder="Enter medications, separated by commas"></textarea>
+              <small class="form-text text-muted">Enter current medications separated by commas</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="pastSurgeries">Past Surgeries</label>
+              <textarea id="pastSurgeries" formControlName="pastSurgeries" class="form-control" rows="3" placeholder="Enter past surgeries, separated by commas"></textarea>
+              <small class="form-text text-muted">Enter past surgeries separated by commas</small>
+            </div>
+            
+            <div class="form-group">
+              <label for="familyHistory">Family History</label>
+              <textarea id="familyHistory" formControlName="familyHistory" class="form-control" rows="3" placeholder="Enter family medical history, separated by commas"></textarea>
+              <small class="form-text text-muted">Enter family medical history separated by commas</small>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn btn-outline" (click)="cancelEditing('medical')">Cancel</button>
+              <button type="submit" class="btn btn-primary" [disabled]="saving">
+                <span *ngIf="saving">Saving...</span>
+                <span *ngIf="!saving">Save Changes</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div class="tab-content" *ngIf="activeTab === 'security'">
+      <div class="card">
+        <div class="card-header">
+          <h3>Change Password</h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+            <div class="form-group">
+              <label for="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" formControlName="currentPassword" class="form-control" />
+              <div class="error-message" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['required']">
+                Current password is required
+              </div>
+              <div class="error-message" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['minlength']">
+                Password must be at least 8 characters
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" formControlName="newPassword" class="form-control" />
+              <div class="error-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['required']">
+                New password is required
+              </div>
+              <div class="error-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']">
+                Password must be at least 8 characters
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" />
+              <div class="error-message" *ngIf="passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.errors?.['required']">
+                Please confirm your password
+              </div>
+              <div class="error-message" *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched">
+                Passwords do not match
+              </div>
+            </div>
+            
+            <div class="password-info">
+              <h4>Password Requirements</h4>
+              <ul>
+                <li>Minimum 8 characters</li>
+                <li>At least one uppercase letter</li>
+                <li>At least one lowercase letter</li>
+                <li>At least one number</li>
+                <li>At least one special character</li>
+              </ul>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || saving">
+                <span *ngIf="saving">Changing...</span>
+                <span *ngIf="!saving">Change Password</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Account Settings</h3>
+        </div>
+        <div class="card-body">
+          <div class="account-settings">
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Two-Factor Authentication</h4>
+                <p>Add an extra layer of security to your account</p>
+              </div>
+              <button class="btn btn-outline">Enable</button>
+            </div>
+            
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Login History</h4>
+                <p>View your recent login activities</p>
+              </div>
+              <button class="btn btn-outline">View</button>
+            </div>
+            
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Data Privacy</h4>
+                <p>Manage how your data is used and shared</p>
+              </div>
+              <button class="btn btn-outline">Manage</button>
+            </div>
+            
+            <div class="setting-item">
+              <div class="setting-info">
+                <h4>Delete Account</h4>
+                <p>Permanently delete your account and all associated data</p>
+              </div>
+              <button class="btn btn-danger">Delete Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

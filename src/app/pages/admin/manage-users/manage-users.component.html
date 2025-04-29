@@ -1,0 +1,552 @@
+<div class="manage-users-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-section">
+      <h1>User Management</h1>
+      <p>Manage system users, roles, and permissions</p>
+    </div>
+    <div class="actions">
+      <button class="view-toggle" (click)="toggleViewMode()">
+        <i class="fa" [ngClass]="viewMode === 'grid' ? 'fa-list' : 'fa-th-large'"></i>
+        {{ viewMode === 'grid' ? 'List View' : 'Grid View' }}
+      </button>
+      <button class="add-user-btn" (click)="openAddUserModal()">
+        <i class="fa fa-plus"></i>
+        Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="search-box">
+      <i class="fa fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search users by name or email..." 
+        (input)="onSearch($event)"
+      >
+    </div>
+
+    <div class="filter-controls">
+      <div class="filter-box">
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter" (change)="onStatusFilterChange($event)">
+          <option value="all">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="suspended">Suspended</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+
+      <div class="filter-box">
+        <label for="roleFilter">Role:</label>
+        <select id="roleFilter" (change)="onRoleFilterChange($event)">
+          <option value="all">All Roles</option>
+          <option *ngFor="let role of roles" [value]="role.id">
+            {{ role.name }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="content">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error">
+      <i class="fa fa-exclamation-circle"></i>
+      <h3>Could not load users</h3>
+      <p>{{ errorMessage }}</p>
+      <button (click)="loadData()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && filteredUsers.length === 0">
+      <i class="fa fa-users"></i>
+      <h3>No users found</h3>
+      <p>There are no users matching your search criteria.</p>
+      <button (click)="openAddUserModal()">Add User</button>
+    </div>
+
+    <!-- Grid View -->
+    <div class="users-grid" *ngIf="!loading && !error && filteredUsers.length > 0 && viewMode === 'grid'">
+      <div class="user-card" *ngFor="let user of getPaginatedUsers()">
+        <div class="user-card-header">
+          <div class="avatar">
+            <img [src]="user.avatar" [alt]="user.name">
+          </div>
+          <div class="status-badge" [ngClass]="getStatusClass(user.status)">
+            {{ user.status | titlecase }}
+          </div>
+        </div>
+        
+        <div class="user-card-body">
+          <h3 class="user-name">{{ user.name }}</h3>
+          <p class="user-role">{{ getRoleName(user.role) }}</p>
+          <p class="user-email">{{ user.email }}</p>
+          
+          <div class="user-info">
+            <div class="info-item">
+              <i class="fa fa-calendar"></i>
+              <span>Joined: {{ user.registrationDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="info-item">
+              <i class="fa fa-clock-o"></i>
+              <span>Last active: {{ user.lastActive | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="user-card-actions">
+          <button class="view-btn" (click)="openUserDetails(user)">
+            <i class="fa fa-eye"></i>
+          </button>
+          <button class="edit-btn" (click)="openEditUserModal(user)">
+            <i class="fa fa-edit"></i>
+          </button>
+          <div class="dropdown">
+            <button class="more-btn">
+              <i class="fa fa-ellipsis-v"></i>
+            </button>
+            <div class="dropdown-content">
+              <a *ngIf="user.status !== 'active'" (click)="openConfirmationModal('activate', user)">
+                <i class="fa fa-check-circle"></i> Activate
+              </a>
+              <a *ngIf="user.status !== 'inactive'" (click)="openConfirmationModal('deactivate', user)">
+                <i class="fa fa-pause-circle"></i> Deactivate
+              </a>
+              <a *ngIf="user.status !== 'suspended'" (click)="openConfirmationModal('suspend', user)">
+                <i class="fa fa-ban"></i> Suspend
+              </a>
+              <a class="delete" (click)="openConfirmationModal('delete', user)">
+                <i class="fa fa-trash"></i> Delete
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="users-table" *ngIf="!loading && !error && filteredUsers.length > 0 && viewMode === 'list'">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Last Active</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of getPaginatedUsers()">
+            <td class="user-cell">
+              <div class="user-avatar">
+                <img [src]="user.avatar" [alt]="user.name">
+              </div>
+              <div class="user-info">
+                <div class="user-name">{{ user.name }}</div>
+              </div>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>{{ getRoleName(user.role) }}</td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(user.status)">
+                {{ user.status | titlecase }}
+              </span>
+            </td>
+            <td>{{ user.registrationDate | date:'mediumDate' }}</td>
+            <td>{{ user.lastActive | date:'mediumDate' }}</td>
+            <td class="actions-cell">
+              <button class="view-btn" (click)="openUserDetails(user)" title="View Details">
+                <i class="fa fa-eye"></i>
+              </button>
+              <button class="edit-btn" (click)="openEditUserModal(user)" title="Edit User">
+                <i class="fa fa-edit"></i>
+              </button>
+              <div class="dropdown">
+                <button class="more-btn" title="More Actions">
+                  <i class="fa fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-content">
+                  <a *ngIf="user.status !== 'active'" (click)="openConfirmationModal('activate', user)">
+                    <i class="fa fa-check-circle"></i> Activate
+                  </a>
+                  <a *ngIf="user.status !== 'inactive'" (click)="openConfirmationModal('deactivate', user)">
+                    <i class="fa fa-pause-circle"></i> Deactivate
+                  </a>
+                  <a *ngIf="user.status !== 'suspended'" (click)="openConfirmationModal('suspend', user)">
+                    <i class="fa fa-ban"></i> Suspend
+                  </a>
+                  <a class="delete" (click)="openConfirmationModal('delete', user)">
+                    <i class="fa fa-trash"></i> Delete
+                  </a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!loading && !error && totalPages > 1">
+      <button 
+        [disabled]="currentPage === 1" 
+        (click)="changePage(currentPage - 1)"
+        class="prev-btn"
+      >
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of getPageNumbers()" 
+          [class.active]="page === currentPage"
+          (click)="changePage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        [disabled]="currentPage === totalPages" 
+        (click)="changePage(currentPage + 1)"
+        class="next-btn"
+      >
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- User Details Modal -->
+  <div class="modal-overlay" *ngIf="selectedUser && !showUserModal && !showConfirmationModal">
+    <div class="modal-container user-details-modal">
+      <div class="modal-header">
+        <h2>User Details</h2>
+        <button class="close-btn" (click)="closeUserDetails()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <div class="user-profile">
+          <div class="avatar-large">
+            <img [src]="selectedUser.avatar" [alt]="selectedUser.name">
+          </div>
+          <div class="user-info-large">
+            <h3>{{ selectedUser.name }}</h3>
+            <p class="user-role">{{ getRoleName(selectedUser.role) }}</p>
+            <div class="status-badge-large" [ngClass]="getStatusClass(selectedUser.status)">
+              {{ selectedUser.status | titlecase }}
+            </div>
+          </div>
+        </div>
+        
+        <div class="tabs">
+          <button 
+            [class.active]="selectedTab === 'info'" 
+            (click)="setActiveTab('info')"
+          >
+            <i class="fa fa-user"></i> Basic Info
+          </button>
+          <button 
+            [class.active]="selectedTab === 'activity'" 
+            (click)="setActiveTab('activity')"
+          >
+            <i class="fa fa-history"></i> Activity
+          </button>
+          <button 
+            [class.active]="selectedTab === 'permissions'" 
+            (click)="setActiveTab('permissions')"
+          >
+            <i class="fa fa-lock"></i> Permissions
+          </button>
+        </div>
+        
+        <!-- Info Tab -->
+        <div class="tab-content" *ngIf="selectedTab === 'info'">
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-label">Email</div>
+              <div class="info-value">{{ selectedUser.email }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Phone</div>
+              <div class="info-value">{{ selectedUser.phoneNumber || 'Not provided' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Role</div>
+              <div class="info-value">{{ getRoleName(selectedUser.role) }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Status</div>
+              <div class="info-value">
+                <span class="status-pill" [ngClass]="getStatusClass(selectedUser.status)">
+                  {{ selectedUser.status | titlecase }}
+                </span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Registration Date</div>
+              <div class="info-value">{{ selectedUser.registrationDate | date:'medium' }}</div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">Last Active</div>
+              <div class="info-value">{{ selectedUser.lastActive | date:'medium' }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Tab -->
+        <div class="tab-content" *ngIf="selectedTab === 'activity'">
+          <div class="activity-timeline" *ngIf="selectedUser.activities && selectedUser.activities.length > 0">
+            <div class="timeline-item" *ngFor="let activity of selectedUser.activities">
+              <div class="timeline-icon">
+                <i class="fa" 
+                  [ngClass]="{
+                    'fa-sign-in': activity.action === 'Login',
+                    'fa-user': activity.action === 'Profile update',
+                    'fa-key': activity.action === 'Password change',
+                    'fa-calendar': activity.action === 'Appointment scheduled',
+                    'fa-envelope': activity.action === 'Message sent',
+                    'fa-file': activity.action === 'Document uploaded'
+                  }"
+                ></i>
+              </div>
+              <div class="timeline-content">
+                <h4>{{ activity.action }}</h4>
+                <p class="timeline-date">{{ activity.timestamp | date:'medium' }}</p>
+                <p class="timeline-details" *ngIf="activity.details">{{ activity.details }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="empty-activity" *ngIf="!selectedUser.activities || selectedUser.activities.length === 0">
+            <i class="fa fa-info-circle"></i>
+            <p>No activity records found for this user.</p>
+          </div>
+        </div>
+        
+        <!-- Permissions Tab -->
+        <div class="tab-content" *ngIf="selectedTab === 'permissions'">
+          <div class="role-permissions">
+            <h3>{{ getRoleName(selectedUser.role) }} Permissions</h3>
+            
+            <div class="permissions-list" *ngIf="getRolePermissions(selectedUser.role).length > 0">
+              <div class="permission-item" *ngFor="let permission of getRolePermissions(selectedUser.role)">
+                <i class="fa fa-check-circle"></i>
+                <span>{{ permission | titlecase }}</span>
+              </div>
+            </div>
+            
+            <div class="no-permissions" *ngIf="getRolePermissions(selectedUser.role).length === 0">
+              <i class="fa fa-info-circle"></i>
+              <p>No permissions defined for this role.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="user-actions">
+          <button class="edit-btn" (click)="openEditUserModal(selectedUser)">
+            <i class="fa fa-edit"></i> Edit User
+          </button>
+          
+          <button 
+            *ngIf="selectedUser.status !== 'active'" 
+            class="activate-btn" 
+            (click)="openConfirmationModal('activate', selectedUser)"
+          >
+            <i class="fa fa-check-circle"></i> Activate
+          </button>
+          
+          <button 
+            *ngIf="selectedUser.status !== 'inactive'" 
+            class="deactivate-btn" 
+            (click)="openConfirmationModal('deactivate', selectedUser)"
+          >
+            <i class="fa fa-pause-circle"></i> Deactivate
+          </button>
+          
+          <button 
+            *ngIf="selectedUser.status !== 'suspended'" 
+            class="suspend-btn" 
+            (click)="openConfirmationModal('suspend', selectedUser)"
+          >
+            <i class="fa fa-ban"></i> Suspend
+          </button>
+          
+          <button class="delete-btn" (click)="openConfirmationModal('delete', selectedUser)">
+            <i class="fa fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Add/Edit Modal -->
+  <div class="modal-overlay" *ngIf="showUserModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>{{ isEditing ? 'Edit User' : 'Add New User' }}</h2>
+        <button class="close-btn" (click)="closeUserModal()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <form [formGroup]="userForm" (submit)="saveUser()">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name" 
+              placeholder="Enter full name"
+            >
+            <div class="error-message" *ngIf="userForm.get('name')?.invalid && userForm.get('name')?.touched">
+              Name is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              formControlName="email" 
+              placeholder="Enter email address"
+            >
+            <div class="error-message" *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+              <span *ngIf="userForm.get('email')?.errors?.['required']">Email is required</span>
+              <span *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="role">Role</label>
+              <select id="role" formControlName="role">
+                <option value="" disabled>Select a role</option>
+                <option *ngFor="let role of roles" [value]="role.id">
+                  {{ role.name }}
+                </option>
+              </select>
+              <div class="error-message" *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
+                Role is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select id="status" formControlName="status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="suspended">Suspended</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number (Optional)</label>
+            <input 
+              type="tel" 
+              id="phoneNumber" 
+              formControlName="phoneNumber" 
+              placeholder="Enter phone number"
+            >
+            <div class="error-message" *ngIf="userForm.get('phoneNumber')?.invalid && userForm.get('phoneNumber')?.touched">
+              Please enter a valid phone number
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="closeUserModal()">Cancel</button>
+            <button type="submit" class="save-btn" [disabled]="userForm.invalid">
+              {{ isEditing ? 'Update User' : 'Create User' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showConfirmationModal">
+    <div class="modal-container confirmation-modal">
+      <div class="modal-header">
+        <h2>Confirm Action</h2>
+        <button class="close-btn" (click)="closeConfirmationModal()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-content">
+        <div class="confirmation-icon" *ngIf="confirmationAction === 'delete'">
+          <i class="fa fa-exclamation-triangle"></i>
+        </div>
+        <div class="confirmation-icon" *ngIf="confirmationAction !== 'delete'">
+          <i class="fa" 
+            [ngClass]="{
+              'fa-check-circle': confirmationAction === 'activate',
+              'fa-pause-circle': confirmationAction === 'deactivate',
+              'fa-ban': confirmationAction === 'suspend'
+            }"
+          ></i>
+        </div>
+
+        <div class="confirmation-message">
+          <h3 *ngIf="confirmationAction === 'activate'">Activate User</h3>
+          <h3 *ngIf="confirmationAction === 'deactivate'">Deactivate User</h3>
+          <h3 *ngIf="confirmationAction === 'suspend'">Suspend User</h3>
+          <h3 *ngIf="confirmationAction === 'delete'">Delete User</h3>
+
+          <p *ngIf="confirmationAction === 'activate'">
+            Are you sure you want to activate {{ selectedUser?.name }}? 
+            This will allow the user to access the system.
+          </p>
+          <p *ngIf="confirmationAction === 'deactivate'">
+            Are you sure you want to deactivate {{ selectedUser?.name }}? 
+            The user will not be able to access the system until reactivated.
+          </p>
+          <p *ngIf="confirmationAction === 'suspend'">
+            Are you sure you want to suspend {{ selectedUser?.name }}? 
+            This action is usually taken for policy violations.
+          </p>
+          <p *ngIf="confirmationAction === 'delete'">
+            Are you sure you want to delete {{ selectedUser?.name }}? 
+            This action cannot be undone.
+          </p>
+        </div>
+
+        <div class="confirmation-actions">
+          <button class="cancel-btn" (click)="closeConfirmationModal()">Cancel</button>
+          <button 
+            class="confirm-btn" 
+            [ngClass]="{
+              'delete-btn': confirmationAction === 'delete',
+              'activate-btn': confirmationAction === 'activate',
+              'deactivate-btn': confirmationAction === 'deactivate',
+              'suspend-btn': confirmationAction === 'suspend'
+            }"
+            (click)="confirmAction()"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

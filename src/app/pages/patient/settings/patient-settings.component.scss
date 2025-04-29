@@ -1,0 +1,668 @@
+// Variables
+$border-radius: 6px;
+$primary-color: #3498db;
+$success-color: #2ecc71;
+$danger-color: #e74c3c;
+$border-color: #eee;
+
+// Settings Container
+.settings-container {
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+// Settings Header
+.settings-header {
+  margin-bottom: 1.5rem;
+  
+  .title-section {
+    h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      color: #333;
+    }
+    
+    p {
+      margin: 0.5rem 0 0;
+      color: #777;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Alert Messages
+.alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: $border-radius;
+  display: flex;
+  align-items: center;
+  
+  i {
+    margin-right: 0.75rem;
+    font-size: 1.1rem;
+  }
+  
+  &.alert-success {
+    background-color: rgba($success-color, 0.1);
+    color: $success-color;
+    border: 1px solid rgba($success-color, 0.2);
+  }
+  
+  &.alert-danger {
+    background-color: rgba($danger-color, 0.1);
+    color: $danger-color;
+    border: 1px solid rgba($danger-color, 0.2);
+  }
+}
+
+// Settings Tabs
+.settings-tabs {
+  display: flex;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  
+  button {
+    background: none;
+    border: none;
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    
+    i {
+      margin-right: 0.5rem;
+    }
+    
+    &:hover {
+      color: $primary-color;
+    }
+    
+    &.active {
+      color: $primary-color;
+      font-weight: 600;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: $primary-color;
+      }
+    }
+  }
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba($primary-color, 0.3);
+    border-radius: 50%;
+    border-top-color: $primary-color;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  p {
+    color: #666;
+  }
+}
+
+// Settings Card
+.settings-card {
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  
+  .card-header {
+    padding: 1.25rem;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid $border-color;
+    
+    h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.3rem;
+      color: #333;
+    }
+    
+    p {
+      margin: 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+}
+
+// Notification Preferences
+.notification-channels {
+  .channel-header {
+    display: grid;
+    grid-template-columns: 1fr repeat(3, 80px);
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid $border-color;
+    
+    .channel-name {
+      font-weight: 600;
+      color: #444;
+    }
+    
+    .channel-option {
+      text-align: center;
+      font-weight: 600;
+      color: #444;
+      font-size: 0.9rem;
+    }
+  }
+  
+  .notification-setting {
+    display: grid;
+    grid-template-columns: 1fr repeat(3, 80px);
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid $border-color;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-info {
+      h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+      }
+      
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 0.85rem;
+      }
+    }
+    
+    .setting-toggles {
+      display: grid;
+      grid-template-columns: repeat(3, 80px);
+      gap: 1rem;
+      
+      .toggle-wrapper {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+// Toggle Switch
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    
+    &:checked + .slider {
+      background-color: $primary-color;
+      
+      &:before {
+        transform: translateX(20px);
+      }
+    }
+    
+    &:focus + .slider {
+      box-shadow: 0 0 1px $primary-color;
+    }
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+    
+    &:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+  }
+}
+
+// Privacy Settings
+.privacy-settings {
+  .privacy-setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid $border-color;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-info {
+      flex: 1;
+      padding-right: 1rem;
+      
+      h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #333;
+      }
+      
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+// Security Section
+.security-section {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid $border-color;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  p {
+    margin: 0 0 1rem;
+    color: #666;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #444;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      font-size: 0.95rem;
+      
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+      }
+    }
+    
+    .error-message {
+      color: $danger-color;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+  }
+  
+  .form-actions {
+    margin-top: 1.5rem;
+  }
+}
+
+// Connected Accounts
+.accounts-list {
+  .account-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid $border-color;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .account-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      
+      .account-icon {
+        width: 48px;
+        height: 48px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        i {
+          font-size: 1.5rem;
+          color: #555;
+          
+          &.fa-google {
+            color: #4285F4;
+          }
+          
+          &.fa-facebook {
+            color: #3b5998;
+          }
+          
+          &.fa-apple {
+            color: #000;
+          }
+          
+          &.fa-fitbit {
+            color: #00B0B9;
+          }
+          
+          &.fa-heartbeat {
+            color: #E91E63;
+          }
+        }
+      }
+      
+      .account-details {
+        h3 {
+          margin: 0 0 0.25rem;
+          font-size: 1rem;
+          font-weight: 500;
+          color: #333;
+        }
+        
+        p {
+          margin: 0;
+          color: #666;
+          font-size: 0.85rem;
+        }
+      }
+    }
+  }
+}
+
+// Appearance Settings
+.appearance-section {
+  margin-bottom: 2rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  h3 {
+    margin: 0 0 1rem;
+    font-size: 1.1rem;
+    color: #333;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid $border-color;
+  }
+  
+  .theme-options {
+    display: flex;
+    gap: 1.5rem;
+    
+    .theme-option {
+      text-align: center;
+      
+      .theme-preview {
+        width: 120px;
+        height: 80px;
+        border-radius: $border-radius;
+        margin-bottom: 0.5rem;
+        border: 2px solid transparent;
+        cursor: pointer;
+        
+        &.light-theme {
+          background-color: #fff;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+          
+          &:after {
+            content: '';
+            display: block;
+            width: 70%;
+            height: 10px;
+            background-color: #eee;
+            margin: 15px auto 5px;
+            border-radius: 5px;
+          }
+          
+          &:before {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 10px;
+            background-color: #eee;
+            margin: 10px auto;
+            border-radius: 5px;
+          }
+        }
+        
+        &.dark-theme {
+          background-color: #222;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          
+          &:after {
+            content: '';
+            display: block;
+            width: 70%;
+            height: 10px;
+            background-color: #444;
+            margin: 15px auto 5px;
+            border-radius: 5px;
+          }
+          
+          &:before {
+            content: '';
+            display: block;
+            width: 40%;
+            height: 10px;
+            background-color: #444;
+            margin: 10px auto;
+            border-radius: 5px;
+          }
+        }
+        
+        &.selected {
+          border-color: $primary-color;
+        }
+      }
+      
+      label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: #555;
+        font-size: 0.95rem;
+        
+        input[type="radio"] {
+          margin: 0;
+        }
+      }
+    }
+  }
+  
+  .font-options {
+    display: flex;
+    gap: 1.5rem;
+    
+    .font-option {
+      text-align: center;
+      cursor: pointer;
+      padding: 0.75rem;
+      border-radius: $border-radius;
+      
+      &.selected {
+        background-color: rgba($primary-color, 0.1);
+      }
+      
+      .font-preview {
+        margin-bottom: 0.5rem;
+        color: #333;
+        
+        &.font-size-small {
+          font-size: 1rem;
+        }
+        
+        &.font-size-medium {
+          font-size: 1.25rem;
+        }
+        
+        &.font-size-large {
+          font-size: 1.5rem;
+        }
+      }
+      
+      span {
+        font-size: 0.9rem;
+        color: #555;
+      }
+    }
+  }
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  gap: 0.5rem;
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background-color: $primary-color;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+  
+  &.btn-secondary {
+    background-color: #f0f0f0;
+    color: #555;
+    
+    &:hover:not(:disabled) {
+      background-color: #e0e0e0;
+    }
+  }
+  
+  &.btn-connect {
+    background-color: $primary-color;
+    color: white;
+    padding: 0.5rem 1rem;
+    
+    &:hover {
+      background-color: darken($primary-color, 10%);
+    }
+  }
+  
+  &.btn-disconnect {
+    background-color: #f0f0f0;
+    color: #555;
+    padding: 0.5rem 1rem;
+    
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .notification-channels {
+    .channel-header {
+      display: none;
+    }
+    
+    .notification-setting {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      
+      .setting-toggles {
+        grid-template-columns: repeat(3, 1fr);
+        
+        .toggle-wrapper {
+          position: relative;
+          
+          &:before {
+            content: attr(data-label);
+            position: absolute;
+            top: -20px;
+            font-size: 0.8rem;
+            color: #666;
+          }
+        }
+      }
+    }
+  }
+  
+  .theme-options, .font-options {
+    flex-direction: column;
+    align-items: center;
+  }
+} 

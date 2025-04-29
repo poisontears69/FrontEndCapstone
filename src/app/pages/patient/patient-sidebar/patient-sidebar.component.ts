@@ -18,9 +18,9 @@ export class PatientSidebarComponent {
       route: '/patient/home'
     },
     {
-      name: 'Doctors',
-      icon: 'fas fa-user-md',
-      route: '/patient/doctors'
+      name: 'Dashboard',
+      icon: 'fas fa-tachometer-alt',
+      route: '/patient/dashboard'
     },
     {
       name: 'Messages',
@@ -31,6 +31,11 @@ export class PatientSidebarComponent {
       name: 'Files',
       icon: 'fas fa-file-medical',
       route: '/patient/files'
+    },
+    {
+      name: 'Profile',
+      icon: 'fas fa-user',
+      route: '/patient/profile'
     },
     {
       name: 'Settings',

@@ -1,0 +1,349 @@
+<div class="doctors-container">
+  <!-- Header -->
+  <div class="doctors-header">
+    <div class="title-section">
+      <h1>Find Doctors</h1>
+      <p>Discover specialized healthcare professionals that meet your needs</p>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="search-filter-container">
+    <div class="search-box">
+      <input 
+        type="text" 
+        placeholder="Search by name, specialty, or hospital..." 
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+      >
+      <button (click)="onSearch()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+
+    <div class="filter-options">
+      <!-- Specialty Filter -->
+      <div class="filter-dropdown">
+        <label for="specialty">Specialty</label>
+        <select id="specialty" [(ngModel)]="selectedSpecialty" (change)="applyFilters()">
+          <option *ngFor="let specialty of specialties" [value]="specialty.id">
+            {{ specialty.name }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Filter Toggles -->
+      <div class="filter-toggles">
+        <div class="toggle-option">
+          <input type="checkbox" id="available" [(ngModel)]="showOnlyAvailable" (change)="applyFilters()">
+          <label for="available">Available Today</label>
+        </div>
+        <div class="toggle-option">
+          <input type="checkbox" id="favorites" [(ngModel)]="showOnlyFavorites" (change)="applyFilters()">
+          <label for="favorites">My Favorites</label>
+        </div>
+      </div>
+
+      <!-- Sort Options -->
+      <div class="sort-by">
+        <label>Sort By</label>
+        <div class="sort-buttons">
+          <button 
+            [class.active]="sortBy === 'rating'" 
+            (click)="changeSort('rating')"
+          >
+            Rating
+            <i *ngIf="sortBy === 'rating'" class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+          </button>
+          <button 
+            [class.active]="sortBy === 'experience'" 
+            (click)="changeSort('experience')"
+          >
+            Experience
+            <i *ngIf="sortBy === 'experience'" class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+          </button>
+          <button 
+            [class.active]="sortBy === 'fee'" 
+            (click)="changeSort('fee')"
+          >
+            Fee
+            <i *ngIf="sortBy === 'fee'" class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+          </button>
+          <button 
+            [class.active]="sortBy === 'name'" 
+            (click)="changeSort('name')"
+          >
+            Name
+            <i *ngIf="sortBy === 'name'" class="fas" [ngClass]="sortDirection === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="doctors-content">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading doctors...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Could not load doctors</h3>
+      <p>{{ errorMessage }}</p>
+      <button (click)="loadDoctors()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && filteredDoctors.length === 0">
+      <i class="fas fa-user-md"></i>
+      <h3>No doctors found</h3>
+      <p>There are no doctors matching your search criteria.</p>
+      <button (click)="loadDoctors()">Reset Filters</button>
+    </div>
+
+    <!-- Doctors Grid -->
+    <div class="doctors-grid" *ngIf="!loading && !error && filteredDoctors.length > 0">
+      <div class="doctor-card" *ngFor="let doctor of filteredDoctors" (click)="viewDoctorDetail(doctor)">
+        <!-- Doctor Header -->
+        <div class="doctor-header">
+          <div class="doctor-avatar">
+            <img [src]="doctor.avatar" [alt]="doctor.name">
+            <span class="availability-indicator" [class.available]="doctor.isAvailable">
+              {{ doctor.isAvailable ? 'Available' : 'Unavailable' }}
+            </span>
+          </div>
+          <div class="doctor-info">
+            <h3>{{ doctor.name }}</h3>
+            <p class="doctor-specialty">{{ doctor.specialty }}</p>
+            <p class="doctor-hospital">{{ doctor.hospital }}</p>
+          </div>
+          <div class="favorite-action" (click)="toggleFavorite(doctor, $event)">
+            <i class="fas" [ngClass]="doctor.isFavorite ? 'fa-heart' : 'fa-heart-o'"></i>
+          </div>
+        </div>
+
+        <!-- Doctor Details -->
+        <div class="doctor-details">
+          <div class="doctor-stats">
+            <div class="stat-item">
+              <span class="stat-value">{{ doctor.experience }}+ yrs</span>
+              <span class="stat-label">Experience</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">
+                {{ doctor.rating }}
+                <div class="star-rating">
+                  <i *ngFor="let star of generateStarRating(doctor.rating); let i = index" 
+                     class="fas" 
+                     [ngClass]="star === 'full' ? 'fa-star' : star === 'half' ? 'fa-star-half-alt' : 'fa-star-o'"></i>
+                </div>
+              </span>
+              <span class="stat-label">({{ doctor.reviewCount }})</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-value">${{ doctor.consultationFee }}</span>
+              <span class="stat-label">Fee</span>
+            </div>
+          </div>
+
+          <button class="book-appointment-btn" (click)="openBookingModal(doctor, $event)">
+            Book Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctor Detail Modal -->
+  <div class="modal-overlay" *ngIf="showDoctorDetail">
+    <div class="modal-container doctor-detail-modal">
+      <div class="modal-header">
+        <h2>Doctor Profile</h2>
+        <button class="close-btn" (click)="closeDoctorDetail()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content" *ngIf="selectedDoctor">
+        <div class="doctor-profile-header">
+          <div class="doctor-profile-avatar">
+            <img [src]="selectedDoctor.avatar" [alt]="selectedDoctor.name">
+          </div>
+          
+          <div class="doctor-profile-info">
+            <h3>{{ selectedDoctor.name }}</h3>
+            <p class="doctor-profile-specialty">{{ selectedDoctor.specialty }}</p>
+            <p class="doctor-profile-hospital">{{ selectedDoctor.hospital }}</p>
+            
+            <div class="doctor-profile-rating">
+              <div class="star-rating">
+                <i *ngFor="let star of generateStarRating(selectedDoctor.rating); let i = index" 
+                   class="fas" 
+                   [ngClass]="star === 'full' ? 'fa-star' : star === 'half' ? 'fa-star-half-alt' : 'fa-star-o'"></i>
+              </div>
+              <span>{{ selectedDoctor.rating }} ({{ selectedDoctor.reviewCount }} reviews)</span>
+            </div>
+            
+            <div class="doctor-profile-badges">
+              <span class="badge">{{ selectedDoctor.experience }}+ Years Experience</span>
+              <span class="badge" [class.available]="selectedDoctor.isAvailable">
+                {{ selectedDoctor.isAvailable ? 'Available Today' : 'Not Available Today' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="doctor-profile-actions">
+            <button class="favorite-btn" (click)="toggleFavorite(selectedDoctor, $event)">
+              <i class="fas" [ngClass]="selectedDoctor.isFavorite ? 'fa-heart' : 'fa-heart-o'"></i>
+              {{ selectedDoctor.isFavorite ? 'Favorited' : 'Add to Favorites' }}
+            </button>
+            <button class="book-btn" (click)="openBookingModal(selectedDoctor, $event)">
+              Book Appointment
+            </button>
+          </div>
+        </div>
+        
+        <div class="doctor-profile-sections">
+          <div class="profile-section">
+            <h4>About</h4>
+            <p>{{ selectedDoctor.about }}</p>
+          </div>
+          
+          <div class="profile-section">
+            <h4>Education & Training</h4>
+            <ul>
+              <li *ngFor="let edu of selectedDoctor.education">{{ edu }}</li>
+            </ul>
+          </div>
+          
+          <div class="profile-section">
+            <h4>Languages</h4>
+            <div class="languages-list">
+              <span class="language-item" *ngFor="let lang of selectedDoctor.languages">{{ lang }}</span>
+            </div>
+          </div>
+          
+          <div class="profile-section">
+            <h4>Availability</h4>
+            <div class="availability-info">
+              <div class="days-list">
+                <span *ngFor="let day of selectedDoctor.availability.days" class="day-item">{{ day }}</span>
+              </div>
+              <p>Hours: {{ selectedDoctor.availability.hours }}</p>
+            </div>
+          </div>
+          
+          <div class="profile-section">
+            <h4>Contact Information</h4>
+            <div class="contact-info">
+              <p>
+                <i class="fas fa-envelope"></i>
+                <span>{{ selectedDoctor.contactInfo.email }}</span>
+              </p>
+              <p>
+                <i class="fas fa-phone"></i>
+                <span>{{ selectedDoctor.contactInfo.phone }}</span>
+              </p>
+              <p>
+                <i class="fas fa-map-marker-alt"></i>
+                <span>{{ selectedDoctor.contactInfo.address }}</span>
+              </p>
+            </div>
+          </div>
+          
+          <div class="profile-section">
+            <h4>Consultation Fee</h4>
+            <div class="fee-info">
+              <span class="fee-amount">${{ selectedDoctor.consultationFee }}</span>
+              <span class="fee-note">per consultation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment Booking Modal -->
+  <div class="modal-overlay" *ngIf="showBookingModal">
+    <div class="modal-container booking-modal">
+      <div class="modal-header">
+        <h2>Book an Appointment</h2>
+        <button class="close-btn" (click)="closeBookingModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content" *ngIf="selectedDoctor">
+        <div class="booking-doctor-info">
+          <img [src]="selectedDoctor.avatar" [alt]="selectedDoctor.name">
+          <div class="booking-doctor-details">
+            <h3>{{ selectedDoctor.name }}</h3>
+            <p>{{ selectedDoctor.specialty }}</p>
+            <p>{{ selectedDoctor.hospital }}</p>
+          </div>
+        </div>
+        
+        <div class="booking-form">
+          <h4>Select Appointment Date</h4>
+          <div class="date-selection">
+            <!-- Calendar would be here in a real app -->
+            <p>Calendar integration will be available soon.</p>
+            <p>{{ selectedDoctor.name }} is available on:</p>
+            <ul class="availability-days">
+              <li *ngFor="let day of selectedDoctor.availability.days">{{ day }} ({{ selectedDoctor.availability.hours }})</li>
+            </ul>
+          </div>
+          
+          <h4>Appointment Details</h4>
+          <div class="form-group">
+            <label for="appointmentType">Appointment Type</label>
+            <select id="appointmentType">
+              <option value="consultation">General Consultation</option>
+              <option value="followup">Follow-up</option>
+              <option value="emergency">Urgent Care</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="appointmentReason">Reason for Visit</label>
+            <textarea id="appointmentReason" rows="3" placeholder="Briefly describe your symptoms or reason for the appointment"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="insuranceInfo">Insurance Information (Optional)</label>
+            <input type="text" id="insuranceInfo" placeholder="Insurance provider and policy number">
+          </div>
+          
+          <div class="booking-summary">
+            <h4>Appointment Summary</h4>
+            <div class="summary-item">
+              <span class="summary-label">Doctor:</span>
+              <span class="summary-value">{{ selectedDoctor.name }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Specialty:</span>
+              <span class="summary-value">{{ selectedDoctor.specialty }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Fee:</span>
+              <span class="summary-value">${{ selectedDoctor.consultationFee }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Location:</span>
+              <span class="summary-value">{{ selectedDoctor.hospital }}</span>
+            </div>
+          </div>
+          
+          <div class="booking-actions">
+            <button class="cancel-btn" (click)="closeBookingModal()">Cancel</button>
+            <button class="confirm-btn">Confirm Booking</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

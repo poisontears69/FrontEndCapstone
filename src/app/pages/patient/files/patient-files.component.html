@@ -1,0 +1,335 @@
+<div class="files-container">
+  <!-- Header -->
+  <div class="files-header">
+    <div class="title-section">
+      <h1>Medical Files</h1>
+      <p>Access and manage your medical records</p>
+    </div>
+    <div class="actions">
+      <button class="view-toggle" (click)="toggleViewMode()">
+        <i class="fas" [ngClass]="viewMode === 'grid' ? 'fa-list' : 'fa-th'"></i>
+        {{ viewMode === 'grid' ? 'List View' : 'Grid View' }}
+      </button>
+      <button class="upload-btn" (click)="openUploadModal()">
+        <i class="fas fa-upload"></i>
+        Upload File
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="files-toolbar">
+    <div class="categories">
+      <button 
+        *ngFor="let category of categories" 
+        class="category-btn" 
+        [class.active]="selectedCategory === category.id"
+        (click)="filterByCategory(category.id)"
+      >
+        <i class="fas" [ngClass]="getFileIcon(category.id)"></i>
+        {{ category.name }}
+      </button>
+    </div>
+    
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search files..." 
+        [(ngModel)]="searchQuery"
+        (keyup)="onSearch(searchQuery)"
+      >
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="files-content">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading files...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error">
+      <i class="fas fa-exclamation-circle"></i>
+      <h3>Could not load files</h3>
+      <p>{{ errorMessage }}</p>
+      <button (click)="loadFiles()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && filteredFiles.length === 0">
+      <i class="fas fa-file-medical"></i>
+      <h3>No files found</h3>
+      <p>There are no files matching your search criteria.</p>
+      <button (click)="openUploadModal()">Upload New File</button>
+    </div>
+
+    <!-- Sort Options -->
+    <div class="sort-options" *ngIf="!loading && !error && filteredFiles.length > 0">
+      <span>Sort by:</span>
+      <button 
+        (click)="changeSort('fileName')" 
+        [class.active]="sortField === 'fileName'"
+      >
+        Name
+        <i class="fas" *ngIf="sortField === 'fileName'" [ngClass]="sortDirection === 'asc' ? 'fa-sort-alpha-down' : 'fa-sort-alpha-up'"></i>
+      </button>
+      <button 
+        (click)="changeSort('uploadDate')" 
+        [class.active]="sortField === 'uploadDate'"
+      >
+        Date
+        <i class="fas" *ngIf="sortField === 'uploadDate'" [ngClass]="sortDirection === 'asc' ? 'fa-sort-numeric-down' : 'fa-sort-numeric-up'"></i>
+      </button>
+      <button 
+        (click)="changeSort('fileSize')" 
+        [class.active]="sortField === 'fileSize'"
+      >
+        Size
+        <i class="fas" *ngIf="sortField === 'fileSize'" [ngClass]="sortDirection === 'asc' ? 'fa-sort-numeric-down' : 'fa-sort-numeric-up'"></i>
+      </button>
+    </div>
+
+    <!-- Grid View -->
+    <div class="files-grid" *ngIf="!loading && !error && filteredFiles.length > 0 && viewMode === 'grid'">
+      <div class="file-card" *ngFor="let file of filteredFiles">
+        <div class="file-preview" (click)="viewFile(file)">
+          <!-- Show thumbnail for imaging files if available -->
+          <img *ngIf="file.thumbnailUrl" [src]="file.thumbnailUrl" [alt]="file.fileName">
+          
+          <!-- Show icon for other file types -->
+          <div class="file-icon" *ngIf="!file.thumbnailUrl">
+            <i class="fas" [ngClass]="getFileIcon(file.fileType)"></i>
+          </div>
+        </div>
+        
+        <div class="file-info">
+          <h3 class="file-name" [title]="file.fileName">{{ file.fileName }}</h3>
+          <p class="file-meta">{{ formatFileSize(file.fileSize) }} • {{ file.uploadDate | date:'mediumDate' }}</p>
+          <p class="file-doctor" *ngIf="file.doctorName">From: {{ file.doctorName }}</p>
+        </div>
+        
+        <div class="file-actions">
+          <button class="action-btn view-btn" (click)="viewFile(file)" title="View">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn download-btn" (click)="downloadFile(file)" title="Download">
+            <i class="fas fa-download"></i>
+          </button>
+          <button class="action-btn share-btn" (click)="openShareModal(file)" title="Share">
+            <i class="fas" [ngClass]="file.isShared ? 'fa-share-alt text-primary' : 'fa-share-alt'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- List View -->
+    <div class="files-table" *ngIf="!loading && !error && filteredFiles.length > 0 && viewMode === 'list'">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Date</th>
+            <th>Doctor</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let file of filteredFiles">
+            <td class="file-name-cell">
+              <i class="fas" [ngClass]="getFileIcon(file.fileType)"></i>
+              <span (click)="viewFile(file)" class="clickable">{{ file.fileName }}</span>
+            </td>
+            <td>{{ file.fileType | titlecase }}</td>
+            <td>{{ formatFileSize(file.fileSize) }}</td>
+            <td>{{ file.uploadDate | date:'mediumDate' }}</td>
+            <td>{{ file.doctorName || '-' }}</td>
+            <td class="actions-cell">
+              <button class="action-btn view-btn" (click)="viewFile(file)" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn download-btn" (click)="downloadFile(file)" title="Download">
+                <i class="fas fa-download"></i>
+              </button>
+              <button class="action-btn share-btn" (click)="toggleShareStatus(file)" title="Share">
+                <i class="fas" [ngClass]="file.isShared ? 'fa-share-alt text-primary' : 'fa-share-alt'"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- File Preview Modal -->
+  <div class="modal-overlay" *ngIf="showPreviewModal">
+    <div class="modal-container file-preview-modal">
+      <div class="modal-header">
+        <h2>{{ selectedFile?.fileName }}</h2>
+        <button class="close-btn" (click)="closePreviewModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content">
+        <div class="file-details">
+          <div class="detail-item">
+            <span class="label">File Type:</span>
+            <span class="value">{{ selectedFile?.fileType | titlecase }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Size:</span>
+            <span class="value">{{ selectedFile ? formatFileSize(selectedFile.fileSize) : '' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Uploaded:</span>
+            <span class="value">{{ selectedFile?.uploadDate | date:'medium' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="selectedFile?.doctorName">
+            <span class="label">Doctor:</span>
+            <span class="value">{{ selectedFile?.doctorName }}</span>
+          </div>
+          <div class="detail-item" *ngIf="selectedFile?.description">
+            <span class="label">Description:</span>
+            <span class="value">{{ selectedFile?.description }}</span>
+          </div>
+        </div>
+        
+        <div class="file-preview-area">
+          <!-- For imaging files, show image preview -->
+          <img *ngIf="selectedFile?.fileType === 'imaging' && selectedFile?.thumbnailUrl" 
+               [src]="selectedFile?.thumbnailUrl" 
+               alt="File preview"
+               class="image-preview"
+          >
+          
+          <!-- For PDF files, show a PDF icon with a link to view -->
+          <div *ngIf="selectedFile?.fileName?.endsWith('pdf')" class="pdf-preview">
+            <i class="far fa-file-pdf"></i>
+            <p>PDF document</p>
+          </div>
+          
+          <!-- For other files, show generic view -->
+          <div *ngIf="selectedFile?.fileType !== 'imaging' && !selectedFile?.fileName?.endsWith('pdf')" class="generic-preview">
+            <i class="fas" [ngClass]="selectedFile ? getFileIcon(selectedFile.fileType) : 'fa-file'"></i>
+            <p>Preview not available</p>
+          </div>
+        </div>
+        
+        <div class="file-actions-bar">
+          <button class="download-btn" (click)="selectedFile && downloadFile(selectedFile)">
+            <i class="fas fa-download"></i> Download
+          </button>
+          <button class="share-btn" (click)="selectedFile && openShareModal(selectedFile)">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Upload Modal -->
+  <div class="modal-overlay" *ngIf="showUploadModal">
+    <div class="modal-container upload-modal">
+      <div class="modal-header">
+        <h2>Upload Medical File</h2>
+        <button class="close-btn" (click)="closeUploadModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content">
+        <form #uploadForm="ngForm">
+          <div class="upload-dropzone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & drop files here or click to browse</p>
+            <input type="file" id="file-upload" hidden>
+            <button class="browse-btn" type="button">Browse Files</button>
+          </div>
+          
+          <div class="form-group">
+            <label for="fileType">File Type</label>
+            <select id="fileType" name="fileType" ngModel required>
+              <option value="">-- Select Type --</option>
+              <option value="lab">Lab Results</option>
+              <option value="prescription">Prescription</option>
+              <option value="imaging">Imaging & Scans</option>
+              <option value="report">Medical Report</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="fileName">File Name</label>
+            <input type="text" id="fileName" name="fileName" ngModel required>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" ngModel rows="3"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="closeUploadModal()">Cancel</button>
+            <button type="submit" class="submit-btn" (click)="uploadFile(uploadForm.value)">Upload</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal-overlay" *ngIf="showShareModal">
+    <div class="modal-container share-modal">
+      <div class="modal-header">
+        <h2>Share File</h2>
+        <button class="close-btn" (click)="closeShareModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-content">
+        <div class="shared-file-info">
+          <i class="fas" [ngClass]="selectedFile ? getFileIcon(selectedFile.fileType) : 'fa-file'"></i>
+          <span>{{ selectedFile?.fileName }}</span>
+        </div>
+        
+        <div class="share-options">
+          <div class="share-option">
+            <input type="checkbox" id="share-doctor" checked>
+            <label for="share-doctor">Share with my doctors</label>
+          </div>
+          
+          <div class="share-option">
+            <input type="checkbox" id="share-family">
+            <label for="share-family">Share with family members</label>
+          </div>
+          
+          <div class="share-via-email">
+            <h3>Share via Email</h3>
+            <div class="email-input">
+              <input type="email" placeholder="Enter email address">
+              <button>Add</button>
+            </div>
+          </div>
+          
+          <div class="share-note">
+            <h3>Add Note (Optional)</h3>
+            <textarea rows="3" placeholder="Add a note to recipients"></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="cancel-btn" (click)="closeShareModal()">Cancel</button>
+          <button class="share-btn" (click)="selectedFile && shareFile(selectedFile)">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

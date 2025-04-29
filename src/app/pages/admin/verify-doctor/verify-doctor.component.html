@@ -1,0 +1,254 @@
+<div class="verify-doctor-container">
+  <!-- Header Section -->
+  <div class="header">
+    <h1>Doctor Verification</h1>
+    <p>Review and verify doctor registrations</p>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls">
+    <div class="search-box">
+      <i class="fa fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Search doctors by name, email or specialty..." 
+        (input)="onSearch($event)"
+      >
+    </div>
+    
+    <div class="filter-box">
+      <select (change)="onFilterChange($event)">
+        <option value="all">All Requests</option>
+        <option value="pending">Pending</option>
+        <option value="verified">Verified</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="content">
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <p>Loading verification requests...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error">
+      <i class="fa fa-exclamation-circle"></i>
+      <h3>Could not load doctor verification requests</h3>
+      <p>{{ errorMessage }}</p>
+      <button (click)="loadDoctors()">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && !error && filteredDoctors.length === 0">
+      <i class="fa fa-file-medical"></i>
+      <h3>No verification requests found</h3>
+      <p>There are no doctor verification requests matching your criteria.</p>
+    </div>
+
+    <!-- Verification Cards -->
+    <div class="verification-cards" *ngIf="!loading && !error && filteredDoctors.length > 0">
+      <div class="card" *ngFor="let doctor of getPaginatedDoctors()" (click)="openModal(doctor)">
+        <div class="status-badge" [ngClass]="doctor.status">
+          {{ doctor.status | titlecase }}
+        </div>
+        
+        <div class="doctor-info">
+          <div class="avatar">
+            <img [src]="doctor.avatar" [alt]="doctor.name">
+          </div>
+          <div class="details">
+            <h3>{{ doctor.name }}</h3>
+            <p class="specialty">{{ doctor.specialty }}</p>
+            <p class="submission-date">
+              Submitted: {{ doctor.submissionDate | date:'mediumDate' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="document-summary">
+          <div class="document-count">
+            <span class="pending" *ngIf="getAllPendingDocuments(doctor) > 0">
+              {{ getAllPendingDocuments(doctor) }} pending
+            </span>
+            <span class="valid" *ngIf="getAllValidDocuments(doctor) > 0">
+              {{ getAllValidDocuments(doctor) }} valid
+            </span>
+            <span class="invalid" *ngIf="getAllInvalidDocuments(doctor) > 0">
+              {{ getAllInvalidDocuments(doctor) }} invalid
+            </span>
+          </div>
+          <div class="documents">
+            <span *ngFor="let doc of doctor.documents" class="document-pill" [ngClass]="doc.status">
+              {{ doc.name }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        [disabled]="currentPage === 1" 
+        (click)="changePage(currentPage - 1)"
+        class="prev-btn"
+      >
+        <i class="fa fa-chevron-left"></i>
+      </button>
+      
+      <div class="page-numbers">
+        <button 
+          *ngFor="let page of getPageNumbers()" 
+          [class.active]="page === currentPage"
+          (click)="changePage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+      
+      <button 
+        [disabled]="currentPage === totalPages" 
+        (click)="changePage(currentPage + 1)"
+        class="next-btn"
+      >
+        <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Verification Modal -->
+  <div class="modal-overlay" *ngIf="showModal">
+    <div class="modal-container">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h2>Verify Doctor</h2>
+        <button class="close-btn" (click)="closeModal()">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div class="modal-content" *ngIf="selectedDoctor">
+        <!-- Doctor Profile -->
+        <div class="doctor-profile">
+          <div class="avatar-large">
+            <img [src]="selectedDoctor.avatar" [alt]="selectedDoctor.name">
+          </div>
+          <div class="profile-info">
+            <h3>{{ selectedDoctor.name }}</h3>
+            <p class="specialty">{{ selectedDoctor.specialty }}</p>
+            <div class="contact-info">
+              <p><i class="fa fa-envelope"></i> {{ selectedDoctor.email }}</p>
+              <p><i class="fa fa-phone"></i> {{ selectedDoctor.phone }}</p>
+            </div>
+          </div>
+          <div class="status-badge-large" [ngClass]="selectedDoctor.status">
+            {{ selectedDoctor.status | titlecase }}
+          </div>
+        </div>
+
+        <!-- Document Verification -->
+        <div class="document-verification">
+          <h3>Submitted Documents</h3>
+          <p class="subtitle">Review and validate each document</p>
+          
+          <div class="documents-list">
+            <div class="document-item" *ngFor="let doc of selectedDoctor.documents">
+              <div class="document-icon" [ngClass]="doc.type">
+                <i class="fa" 
+                  [ngClass]="{
+                    'fa-file-pdf': doc.type === 'pdf',
+                    'fa-file-image': doc.type === 'jpg' || doc.type === 'png'
+                  }"
+                ></i>
+              </div>
+              
+              <div class="document-details">
+                <h4>{{ doc.name }}</h4>
+                <p>Uploaded: {{ doc.uploadDate | date:'mediumDate' }}</p>
+                <div class="document-status" [ngClass]="doc.status">
+                  {{ doc.status | titlecase }}
+                </div>
+              </div>
+              
+              <div class="document-actions">
+                <button class="view-btn" (click)="viewDocument(doc)">
+                  <i class="fa fa-eye"></i> View
+                </button>
+                <button 
+                  class="valid-btn" 
+                  [class.active]="doc.status === 'valid'"
+                  (click)="markDocumentAsValid(doc)"
+                >
+                  <i class="fa fa-check"></i> Valid
+                </button>
+                <button 
+                  class="invalid-btn"
+                  [class.active]="doc.status === 'invalid'" 
+                  (click)="markDocumentAsInvalid(doc)"
+                >
+                  <i class="fa fa-times"></i> Invalid
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification Notes -->
+        <div class="verification-notes">
+          <h3>Verification Notes</h3>
+          <p class="subtitle">Add notes to explain your verification decision</p>
+          
+          <form [formGroup]="verificationForm">
+            <textarea 
+              formControlName="notes"
+              placeholder="Add verification notes here..."
+              [maxlength]="maxNotesLength"
+            ></textarea>
+            <div class="character-count">
+              {{ verificationForm.get('notes')?.value?.length || 0 }}/{{ maxNotesLength }}
+            </div>
+          </form>
+        </div>
+
+        <!-- Verification Results (Success/Error) -->
+        <div class="verification-result success" *ngIf="verificationSuccess">
+          <i class="fa fa-check-circle"></i>
+          <p>Verification status updated successfully!</p>
+        </div>
+        
+        <div class="verification-result error" *ngIf="verificationError">
+          <i class="fa fa-exclamation-circle"></i>
+          <p>Failed to update verification status. Please try again.</p>
+        </div>
+
+        <!-- Verification Actions -->
+        <div class="verification-actions">
+          <button 
+            class="approve-btn" 
+            [disabled]="isApproveDisabled() || processingVerification"
+            (click)="approveDoctor()"
+          >
+            <i class="fa fa-check-circle"></i>
+            <span *ngIf="!processingVerification">Approve</span>
+            <span *ngIf="processingVerification">Processing...</span>
+          </button>
+          
+          <button 
+            class="reject-btn"
+            [disabled]="processingVerification"  
+            (click)="rejectDoctor()"
+          >
+            <i class="fa fa-times-circle"></i>
+            <span *ngIf="!processingVerification">Reject</span>
+            <span *ngIf="processingVerification">Processing...</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,504 @@
+<div class="calendar-container">
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+  </div>
+
+  <!-- Calendar Header -->
+  <div class="calendar-header">
+    <div class="calendar-title">
+      <h2>
+        <i class="fas fa-calendar-alt me-2"></i>
+        <span>{{ selectedViewMode === 'month' ? (currentDate | date:'MMMM yyyy') : 
+               selectedViewMode === 'week' ? 'Week of ' + (weekStartDate | date:'MMM d') + ' - ' + (weekEndDate | date:'MMM d, yyyy') :
+               (currentDate | date:'EEEE, MMMM d, yyyy') }}</span>
+      </h2>
+    </div>
+    
+    <div class="calendar-actions">
+      <div class="calendar-nav">
+        <button class="btn btn-sm btn-outline-secondary" (click)="navigatePrevious()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="btn btn-sm btn-primary mx-2" (click)="goToToday()">Today</button>
+        <button class="btn btn-sm btn-outline-secondary" (click)="navigateNext()">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+      
+      <div class="calendar-view-switcher">
+        <div class="btn-group" role="group">
+          <button 
+            type="button" 
+            class="btn btn-sm" 
+            [class.btn-primary]="selectedViewMode === 'day'"
+            [class.btn-outline-primary]="selectedViewMode !== 'day'"
+            (click)="switchView('day')">
+            Day
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-sm" 
+            [class.btn-primary]="selectedViewMode === 'week'"
+            [class.btn-outline-primary]="selectedViewMode !== 'week'"
+            (click)="switchView('week')">
+            Week
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-sm" 
+            [class.btn-primary]="selectedViewMode === 'month'"
+            [class.btn-outline-primary]="selectedViewMode !== 'month'"
+            (click)="switchView('month')">
+            Month
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Body -->
+  <div class="calendar-body">
+    <!-- Month View -->
+    <div *ngIf="selectedViewMode === 'month'" class="month-view">
+      <!-- Weekday Headers -->
+      <div class="weekday-header">
+        <div *ngFor="let day of weekDays" class="weekday-cell">{{ day }}</div>
+      </div>
+      
+      <!-- Calendar Grid -->
+      <div class="month-grid">
+        <div *ngFor="let week of calendarDays" class="week-row">
+          <div *ngFor="let day of week" class="day-cell" 
+               [class.current-month]="day.isCurrentMonth"
+               [class.today]="day.isToday"
+               [class.selected]="day.date === selectedDate"
+               (click)="selectDate(day.date)">
+            <div class="day-header">
+              <span class="day-number">{{ day.dayNumber }}</span>
+              <span *ngIf="day.appointmentCount > 0" class="appointment-indicator"
+                    [style.background-color]="getAppointmentIndicatorColor(day)">
+                {{ day.appointmentCount }}
+              </span>
+            </div>
+            <div class="day-appointments" *ngIf="day.appointmentCount > 0 && day.appointments">
+              <div *ngFor="let appointment of day.appointments.slice(0, 2)" class="day-appointment-preview"
+                   [style.background-color]="getStatusColor(appointment.status)">
+                <div class="appointment-time">{{ appointment.startTime }}</div>
+                <div class="appointment-patient">{{ appointment.patientName }}</div>
+              </div>
+              <div *ngIf="day.appointmentCount > 2" class="more-appointments">
+                +{{ day.appointmentCount - 2 }} more
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Week View -->
+    <div *ngIf="selectedViewMode === 'week'" class="week-view">
+      <!-- Time scale on the left -->
+      <div class="time-scale">
+        <div class="time-header"></div>
+        <div *ngFor="let time of timeSlots" class="time-slot">
+          {{ time }}
+        </div>
+      </div>
+      
+      <!-- Week days with appointments -->
+      <div class="week-days">
+        <div class="week-day-headers">
+          <div *ngFor="let day of weekViewDays" class="day-header" 
+               [class.today]="day.isToday">
+            <div class="day-name">{{ day.dayName }}</div>
+            <div class="day-date">{{ day.date | date:'MMM d' }}</div>
+          </div>
+        </div>
+        
+        <div class="week-grid">
+          <div *ngFor="let time of timeSlots; let timeIndex = index" class="time-row">
+            <div *ngFor="let day of weekViewDays; let dayIndex = index" class="day-column"
+                 [class.today]="day.isToday">
+              <ng-container *ngFor="let appointment of getAppointmentsAtTime(day.date, time)">
+                <div class="week-appointment" 
+                     [style.background-color]="getStatusColor(appointment.status)"
+                     (click)="viewAppointmentDetails(appointment.id)">
+                  <div class="appointment-time">{{ appointment.startTime }} - {{ appointment.endTime }}</div>
+                  <div class="appointment-patient">{{ appointment.patientName }}</div>
+                  <div class="appointment-type">{{ appointment.type }}</div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day View -->
+    <div *ngIf="selectedViewMode === 'day'" class="day-view">
+      <!-- Time scale on the left -->
+      <div class="time-scale">
+        <div *ngFor="let time of timeSlots" class="time-slot">
+          {{ time }}
+        </div>
+      </div>
+      
+      <!-- Appointments for the day -->
+      <div class="day-schedule">
+        <div *ngFor="let time of timeSlots; let i = index" class="time-block"
+             [class.odd-hour]="i % 2 === 0">
+          <div *ngFor="let appointment of getAppointmentsAtTime(formatDate(currentDate), time)" 
+               class="day-appointment"
+               [style.background-color]="getStatusColor(appointment.status)"
+               (click)="viewAppointmentDetails(appointment.id)">
+            <div class="appointment-time">{{ appointment.startTime }} - {{ appointment.endTime }}</div>
+            <div class="appointment-patient">
+              <img *ngIf="appointment.patientAvatar" [src]="appointment.patientAvatar" alt="Patient" class="patient-avatar">
+              <span class="patient-name">{{ appointment.patientName }}</span>
+              <span *ngIf="appointment.isNewPatient" class="new-patient-badge">New</span>
+            </div>
+            <div class="appointment-details">
+              <span class="appointment-type" [style.background-color]="getTypeColor(appointment.type)">
+                {{ formatAppointmentType(appointment.type) }}
+              </span>
+              <span class="appointment-clinic">{{ appointment.clinicName }}</span>
+            </div>
+            <div class="appointment-reason" *ngIf="appointment.reason">
+              {{ appointment.reason }}
+            </div>
+          </div>
+          
+          <div *ngIf="getAppointmentsAtTime(formatDate(currentDate), time).length === 0" class="empty-slot"
+               (click)="createAppointment(formatDate(currentDate), time)">
+            <i class="fas fa-plus"></i> Add appointment
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Appointment List Section -->
+  <div class="appointment-list-section">
+    <div class="list-header">
+      <h3>{{ getAppointmentListTitle() }}</h3>
+      <div class="list-actions">
+        <button class="btn btn-sm btn-primary" (click)="createAppointment()">
+          <i class="fas fa-plus me-1"></i>New Appointment
+        </button>
+      </div>
+    </div>
+
+    <div class="list-filters">
+      <div class="filter-group">
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter" class="form-select form-select-sm" [(ngModel)]="statusFilter" (change)="applyFilters()">
+          <option value="all">All Statuses</option>
+          <option *ngFor="let status of appointmentStatuses" [value]="status">
+            {{ formatAppointmentStatus(status) }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="typeFilter">Type:</label>
+        <select id="typeFilter" class="form-select form-select-sm" [(ngModel)]="typeFilter" (change)="applyFilters()">
+          <option value="all">All Types</option>
+          <option *ngFor="let type of appointmentTypes" [value]="type">
+            {{ formatAppointmentType(type) }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="clinicFilter">Clinic:</label>
+        <select id="clinicFilter" class="form-select form-select-sm" [(ngModel)]="clinicFilter" (change)="applyFilters()">
+          <option value="all">All Clinics</option>
+          <option *ngFor="let clinic of clinics" [value]="clinic.id">
+            {{ clinic.name }}
+          </option>
+        </select>
+      </div>
+      
+      <div class="search-group">
+        <input 
+          type="text" 
+          class="form-control form-control-sm" 
+          placeholder="Search patients..." 
+          [(ngModel)]="searchTerm"
+          (input)="applyFilters()">
+      </div>
+    </div>
+
+    <div class="appointment-list">
+      <div *ngIf="filteredAppointments.length === 0" class="no-appointments">
+        <i class="fas fa-calendar-times"></i>
+        <p>No appointments found</p>
+      </div>
+      
+      <div *ngFor="let appointment of filteredAppointments" class="appointment-card"
+           [class.active]="selectedAppointmentId === appointment.id"
+           (click)="selectAppointment(appointment.id)">
+        <div class="appointment-status" [style.background-color]="getStatusColor(appointment.status)"></div>
+        
+        <div class="appointment-info">
+          <div class="appointment-primary">
+            <div class="appointment-time">
+              <i class="far fa-clock me-1"></i>
+              {{ appointment.date | date:'MMM d' }} | {{ appointment.startTime }} - {{ appointment.endTime }}
+            </div>
+            <div class="appointment-patient">
+              <img *ngIf="appointment.patientAvatar" [src]="appointment.patientAvatar" alt="Patient" class="patient-avatar">
+              <span>{{ appointment.patientName }}</span>
+              <span *ngIf="appointment.isNewPatient" class="new-patient-badge">New</span>
+            </div>
+          </div>
+          
+          <div class="appointment-secondary">
+            <div class="appointment-type" [style.background-color]="getTypeColor(appointment.type)">
+              {{ formatAppointmentType(appointment.type) }}
+            </div>
+            <div class="appointment-clinic">
+              <i class="fas fa-clinic-medical me-1"></i>
+              {{ appointment.clinicName }}
+            </div>
+          </div>
+          
+          <div class="appointment-reason" *ngIf="appointment.reason">
+            <i class="fas fa-comment-medical me-1"></i>
+            {{ appointment.reason }}
+          </div>
+        </div>
+        
+        <div class="appointment-actions">
+          <button class="btn btn-sm btn-outline-primary" (click)="viewAppointmentDetails(appointment.id); $event.stopPropagation();">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-success" *ngIf="canCheckIn(appointment)" 
+                 (click)="checkInAppointment(appointment.id); $event.stopPropagation();">
+            <i class="fas fa-check-circle"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger" 
+                 (click)="cancelAppointment(appointment.id); $event.stopPropagation();">
+            <i class="fas fa-times-circle"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Details Modal -->
+<div *ngIf="showAppointmentModal && selectedAppointment" class="modal-backdrop">
+  <div class="modal-container appointment-modal">
+    <div class="modal-header">
+      <h3>Appointment Details</h3>
+      <button class="close-btn" (click)="closeAppointmentModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="appointment-detail-header">
+        <div class="status-badge" [style.background-color]="getStatusColor(selectedAppointment.status)">
+          {{ formatAppointmentStatus(selectedAppointment.status) }}
+        </div>
+        
+        <div class="type-badge" [style.background-color]="getTypeColor(selectedAppointment.type)">
+          {{ formatAppointmentType(selectedAppointment.type) }}
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Date & Time</h4>
+        <p>
+          <i class="far fa-calendar-alt me-2"></i>{{ selectedAppointment.date | date:'EEEE, MMMM d, yyyy' }}
+        </p>
+        <p>
+          <i class="far fa-clock me-2"></i>{{ selectedAppointment.startTime }} - {{ selectedAppointment.endTime }}
+        </p>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Patient Information</h4>
+        <div class="patient-info">
+          <img *ngIf="selectedAppointment.patientAvatar" [src]="selectedAppointment.patientAvatar" alt="Patient" class="patient-avatar-large">
+          <div class="patient-details">
+            <p class="patient-name">{{ selectedAppointment.patientName }}</p>
+            <span *ngIf="selectedAppointment.isNewPatient" class="new-patient-badge">New Patient</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Appointment Details</h4>
+        <p *ngIf="selectedAppointment.reason">
+          <strong>Reason:</strong> {{ selectedAppointment.reason }}
+        </p>
+        <p>
+          <strong>Clinic:</strong> {{ selectedAppointment.clinicName }}
+        </p>
+        <p *ngIf="selectedAppointment.notes">
+          <strong>Notes:</strong> {{ selectedAppointment.notes }}
+        </p>
+      </div>
+      
+      <div class="detail-section">
+        <h4>Payment Information</h4>
+        <p>
+          <strong>Status:</strong> 
+          <span class="payment-status" [ngClass]="'status-' + selectedAppointment.paymentStatus?.toLowerCase()">
+            {{ formatPaymentStatus(selectedAppointment.paymentStatus) }}
+          </span>
+        </p>
+        <p *ngIf="selectedAppointment.paymentAmount">
+          <strong>Amount:</strong> ${{ selectedAppointment.paymentAmount }}
+        </p>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-sm btn-outline-secondary" (click)="closeAppointmentModal()">Close</button>
+      <button class="btn btn-sm btn-primary" (click)="editAppointment(selectedAppointment.id)">Edit</button>
+      <button class="btn btn-sm btn-success" *ngIf="canCheckIn(selectedAppointment)" 
+             (click)="checkInAppointment(selectedAppointment.id)">Check In</button>
+      <button class="btn btn-sm btn-info" *ngIf="canComplete(selectedAppointment)" 
+             (click)="completeAppointment(selectedAppointment.id)">Complete</button>
+      <button class="btn btn-sm btn-danger" (click)="cancelAppointment(selectedAppointment.id)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create/Edit Appointment Modal -->
+<div *ngIf="showCreateModal" class="modal-backdrop">
+  <div class="modal-container create-appointment-modal">
+    <div class="modal-header">
+      <h3>{{ isEditMode ? 'Edit Appointment' : 'Create New Appointment' }}</h3>
+      <button class="close-btn" (click)="closeCreateModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="appointmentForm">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="patient">Patient</label>
+            <select id="patient" class="form-control" formControlName="patientId">
+              <option value="">Select a patient</option>
+              <option *ngFor="let patient of patients" [value]="patient.id">
+                {{ patient.name }}
+              </option>
+            </select>
+            <div *ngIf="formSubmitted && appointmentForm.get('patientId')?.invalid" class="text-danger">
+              Patient is required
+            </div>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="appointmentType">Appointment Type</label>
+            <select id="appointmentType" class="form-control" formControlName="type">
+              <option value="">Select type</option>
+              <option *ngFor="let type of appointmentTypes" [value]="type">
+                {{ formatAppointmentType(type) }}
+              </option>
+            </select>
+            <div *ngIf="formSubmitted && appointmentForm.get('type')?.invalid" class="text-danger">
+              Appointment type is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="appointmentDate">Date</label>
+            <input type="date" id="appointmentDate" class="form-control" formControlName="date">
+            <div *ngIf="formSubmitted && appointmentForm.get('date')?.invalid" class="text-danger">
+              Valid date is required
+            </div>
+          </div>
+          
+          <div class="form-group col-md-3">
+            <label for="startTime">Start Time</label>
+            <input type="time" id="startTime" class="form-control" formControlName="startTime">
+            <div *ngIf="formSubmitted && appointmentForm.get('startTime')?.invalid" class="text-danger">
+              Start time is required
+            </div>
+          </div>
+          
+          <div class="form-group col-md-3">
+            <label for="endTime">End Time</label>
+            <input type="time" id="endTime" class="form-control" formControlName="endTime">
+            <div *ngIf="formSubmitted && appointmentForm.get('endTime')?.invalid" class="text-danger">
+              End time is required
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="clinicId">Clinic</label>
+          <select id="clinicId" class="form-control" formControlName="clinicId">
+            <option value="">Select clinic</option>
+            <option *ngFor="let clinic of clinics" [value]="clinic.id">
+              {{ clinic.name }}
+            </option>
+          </select>
+          <div *ngIf="formSubmitted && appointmentForm.get('clinicId')?.invalid" class="text-danger">
+            Clinic is required
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="reason">Reason for Visit</label>
+          <textarea id="reason" class="form-control" rows="2" formControlName="reason"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="notes">Notes</label>
+          <textarea id="notes" class="form-control" rows="2" formControlName="notes"></textarea>
+        </div>
+        
+        <div class="form-check mb-3">
+          <input type="checkbox" class="form-check-input" id="isNewPatient" formControlName="isNewPatient">
+          <label class="form-check-label" for="isNewPatient">New Patient</label>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="paymentStatus">Payment Status</label>
+            <select id="paymentStatus" class="form-control" formControlName="paymentStatus">
+              <option value="">Select status</option>
+              <option *ngFor="let status of paymentStatuses" [value]="status">
+                {{ formatPaymentStatus(status) }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-group col-md-6">
+            <label for="paymentAmount">Payment Amount</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">$</span>
+              </div>
+              <input type="number" id="paymentAmount" class="form-control" formControlName="paymentAmount">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveAppointment()">
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </div>
+</div> 

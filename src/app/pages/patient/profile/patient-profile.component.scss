@@ -1,0 +1,436 @@
+
+
+// Profile Container
+.profile-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Loading State
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(lightblue, 0.3);
+    border-radius: 50%;
+    border-top-color: lightblue;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+// Profile Header
+.profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid grey;
+  
+  .avatar-container {
+    position: relative;
+    margin-right: 2rem;
+    
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid grey;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .avatar-overlay {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: lightblue;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: darken(lightblue, 10%);
+      }
+    }
+  }
+  
+  .user-info {
+    h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    
+    .user-email {
+      color: black;
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Alerts
+.alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  
+  i {
+    margin-right: 0.5rem;
+  }
+  
+  &.alert-success {
+    background-color: rgba(green, 0.1);
+    color: green;
+    border: 1px solid rgba(green, 0.2);
+  }
+  
+  &.alert-danger {
+    background-color: rgba(red, 0.1);
+    color: red;
+    border: 1px solid rgba(red, 0.2);
+  }
+}
+
+// Profile Tabs
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid grey;
+  margin-bottom: 1.5rem;
+  
+  button {
+    background: none;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: black;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: lightblue;
+    }
+    
+    &.active {
+      color: lightblue;
+      font-weight: 600;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: lightblue;
+      }
+    }
+  }
+}
+
+// Tab Content
+.tab-content {
+  margin-bottom: 2rem;
+  
+  .card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    
+    .card-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #f9f9f9;
+      border-bottom: 1px solid grey;
+      
+      h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+  }
+}
+
+// Info Grid
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .info-item {
+    .label {
+      display: block;
+      font-size: 0.875rem;
+      color: black;
+      margin-bottom: 0.25rem;
+    }
+    
+    .value {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Forms
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid grey;
+    border-radius: grey;
+    transition: border-color 0.2s ease;
+    
+    &:focus {
+      outline: none;
+      border-color: lightblue;
+      box-shadow: 0 0 0 2px rgba(lightblue, 0.1);
+    }
+    
+    &:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+  }
+  
+  textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .form-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: black;
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.625rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: grey;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  &.btn-primary {
+    background-color: lightblue;
+    color: white;
+    
+    &:hover:not(:disabled) {
+      background-color: darken(lightblue, 10%);
+    }
+  }
+  
+  &.btn-outline {
+    background-color: transparent;
+    border: 1px solid grey;
+    color: black;
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+  
+  &.btn-danger {
+    background-color: red;
+    color: white;
+    
+    &:hover {
+      background-color: darken(red, 10%);
+    }
+  }
+}
+
+// Medical History Tab
+.medical-history {
+  .medical-section {
+    margin-bottom: 1.5rem;
+    
+    h4 {
+      margin: 0 0 0.75rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    ul {
+      margin: 0;
+      padding-left: 1.5rem;
+      
+      li {
+        margin-bottom: 0.5rem;
+      }
+    }
+    
+    .no-data {
+      color: black;
+      font-style: italic;
+    }
+  }
+}
+
+// Account Settings
+.account-settings {
+  .setting-item {
+    padding: 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid grey;
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .setting-info {
+      h4 {
+        margin: 0 0 0.25rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+      
+      p {
+        margin: 0;
+        color: black;
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Password Info
+.password-info {
+  background-color: #f9f9f9;
+  padding: 1rem 1.25rem;
+  border-radius: 15px;
+  margin: 1.5rem 0;
+  
+  h4 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    
+    li {
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: black;
+    }
+  }
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    
+    .avatar-container {
+      margin-right: 0;
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  .profile-tabs {
+    flex-wrap: wrap;
+    
+    button {
+      flex: 1 1 auto;
+      padding: 0.75rem;
+      text-align: center;
+    }
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .account-settings .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    button {
+      margin-top: 1rem;
+    }
+  }
+} 

@@ -1,0 +1,223 @@
+<div class="messages-container">
+  <!-- Left sidebar with chat threads -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h3>Messages</h3>
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search messages..." 
+          [(ngModel)]="searchTerm"
+          class="search-input">
+        <i class="fas fa-search search-icon"></i>
+      </div>
+    </div>
+    
+    <div class="threads-container">
+      <div *ngIf="isLoading && chatThreads.length === 0" class="loading-indicator">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading conversations...</p>
+      </div>
+      
+      <div *ngIf="!isLoading && filteredChatThreads.length === 0" class="empty-state">
+        <i class="fas fa-comment-medical"></i>
+        <p>No conversations found</p>
+      </div>
+      
+      <div *ngFor="let thread of filteredChatThreads" 
+           class="chat-thread" 
+           [class.active]="activeThread?.id === thread.id"
+           [class.unread]="thread.unreadCount > 0"
+           (click)="selectThread(thread)">
+        <div class="avatar-container">
+          <img [src]="thread.participantAvatar || 'assets/images/default-avatar.png'" alt="Avatar" class="avatar">
+          <span *ngIf="thread.isOnline" class="online-indicator"></span>
+        </div>
+        
+        <div class="thread-info">
+          <div class="thread-header">
+            <h4 class="thread-name">{{ thread.participantName }}</h4>
+            <span class="thread-time" *ngIf="thread.lastMessage">{{ formatMessageTime(thread.lastMessage.timestamp) }}</span>
+          </div>
+          
+          <div class="thread-message" *ngIf="thread.lastMessage">
+            <p>{{ thread.lastMessage.content.length > 50 ? thread.lastMessage.content.substring(0, 50) + '...' : thread.lastMessage.content }}</p>
+          </div>
+          
+          <div class="thread-badges">
+            <span *ngIf="thread.unreadCount > 0" class="unread-badge">{{ thread.unreadCount }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Main chat area -->
+  <div class="chat-area" [class.empty]="!activeThread">
+    <div *ngIf="!activeThread" class="empty-chat">
+      <div class="empty-chat-content">
+        <i class="fas fa-comments empty-icon"></i>
+        <h3>Your Messages</h3>
+        <p>Select a conversation from the left to start messaging with your patients.</p>
+      </div>
+    </div>
+    
+    <ng-container *ngIf="activeThread">
+      <!-- Chat header -->
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="avatar-container">
+            <img [src]="activeThread.participantAvatar || 'assets/images/default-avatar.png'" alt="Avatar" class="avatar">
+            <span *ngIf="activeThread.isOnline" class="online-indicator"></span>
+          </div>
+          
+          <div class="header-details">
+            <h3 class="recipient-name">{{ activeThread.participantName }}</h3>
+            <span class="status-text">{{ activeThread.isOnline ? 'Online' : 'Offline' }}</span>
+          </div>
+        </div>
+        
+        <div class="chat-actions">
+          <button class="btn-icon" (click)="initiateVideoCall()" [disabled]="isCallInProgress">
+            <i class="fas fa-video"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Messages container -->
+      <div class="messages-list" #chatContainer>
+        <div *ngIf="isLoading && messages.length === 0" class="loading-indicator">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading messages...</p>
+        </div>
+        
+        <div *ngIf="!isLoading && messages.length === 0" class="empty-messages">
+          <p>No messages yet. Start the conversation by sending a message below.</p>
+        </div>
+        
+        <div *ngFor="let message of messages" 
+             class="message-bubble" 
+             [class.own-message]="isOwnMessage(message)" 
+             [class.other-message]="!isOwnMessage(message)">
+          <div class="message-avatar" *ngIf="!isOwnMessage(message)">
+            <img [src]="message.senderAvatar || 'assets/images/default-avatar.png'" alt="Avatar">
+          </div>
+          
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-sender" *ngIf="!isOwnMessage(message)">{{ message.senderName }}</span>
+              <span class="message-time">{{ formatMessageTime(message.timestamp) }}</span>
+            </div>
+            
+            <div class="message-text">{{ message.content }}</div>
+            
+            <div *ngIf="message.attachmentUrl" class="attachment">
+              <img *ngIf="message.attachmentType === 'image'" [src]="message.attachmentUrl" alt="Attachment" class="attachment-image">
+              <div *ngIf="message.attachmentType !== 'image'" class="attachment-file">
+                <i class="fas fa-file-alt"></i>
+                <span>Attachment</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Message input -->
+      <div class="message-input-container">
+        <div *ngIf="attachmentFile" class="attachment-preview">
+          <div class="attachment-preview-content">
+            <img *ngIf="attachmentPreview" [src]="attachmentPreview" alt="Attachment preview" class="attachment-image-preview">
+            <div *ngIf="!attachmentPreview" class="attachment-file-preview">
+              <i class="fas fa-file"></i>
+              <span>{{ attachmentFile.name }}</span>
+            </div>
+          </div>
+          <button class="btn-icon remove-attachment" (click)="clearAttachment()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="message-input-form">
+          <button class="btn-icon attachment-btn">
+            <i class="fas fa-paperclip"></i>
+            <input type="file" #fileInput (change)="handleAttachment($event)" class="file-input" accept="image/*,.pdf,.doc,.docx">
+          </button>
+          
+          <textarea 
+            class="message-input" 
+            placeholder="Type a message..." 
+            [(ngModel)]="newMessage"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"></textarea>
+          
+          <button class="btn-icon send-btn" [disabled]="(!newMessage || newMessage.trim() === '') && !attachmentFile" (click)="sendMessage()">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- Video call overlay -->
+<div *ngIf="activeCall" class="video-call-overlay" [class.minimized]="isCallMinimized">
+  <div class="video-call-container">
+    <div class="video-call-header">
+      <div class="call-info">
+        <div *ngIf="activeCall.status === 'ringing'" class="call-status">
+          <i class="fas fa-phone-volume"></i>
+          <span *ngIf="activeCall.initiator === 'current-user'">Calling...</span>
+          <span *ngIf="activeCall.initiator !== 'current-user'">Incoming call...</span>
+        </div>
+        <div *ngIf="activeCall.status === 'in-progress'" class="call-status">
+          <i class="fas fa-video"></i>
+          <span>In call with {{ activeThread?.participantName }}</span>
+        </div>
+      </div>
+      <div class="call-actions-header">
+        <button class="btn-icon minimize-btn" (click)="toggleMinimizeCall()">
+          <i [class]="isCallMinimized ? 'fas fa-expand-alt' : 'fas fa-compress-alt'"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="video-streams">
+      <!-- Main stream (remote user) -->
+      <div class="main-stream" [class.camera-off]="isCameraOff">
+        <i *ngIf="isCameraOff" class="fas fa-video-slash camera-off-icon"></i>
+        <!-- This is where the actual WebRTC video would be rendered -->
+      </div>
+      
+      <!-- Self view (picture-in-picture) -->
+      <div class="self-stream">
+        <!-- This is where your own WebRTC video would be rendered -->
+      </div>
+    </div>
+    
+    <div class="video-call-controls">
+      <button class="control-btn mute-btn" [class.active]="isMuted" (click)="toggleMute()">
+        <i [class]="isMuted ? 'fas fa-microphone-slash' : 'fas fa-microphone'"></i>
+      </button>
+      
+      <button class="control-btn end-call-btn" (click)="endVideoCall()">
+        <i class="fas fa-phone-slash"></i>
+      </button>
+      
+      <button class="control-btn camera-btn" [class.active]="isCameraOff" (click)="toggleCamera()">
+        <i [class]="isCameraOff ? 'fas fa-video-slash' : 'fas fa-video'"></i>
+      </button>
+    </div>
+    
+    <!-- Call acceptance buttons for incoming calls -->
+    <div *ngIf="activeCall.status === 'ringing' && activeCall.initiator !== 'current-user'" class="incoming-call-actions">
+      <button class="accept-call-btn" (click)="acceptVideoCall()">
+        <i class="fas fa-phone"></i>
+        Accept
+      </button>
+      
+      <button class="decline-call-btn" (click)="endVideoCall()">
+        <i class="fas fa-phone-slash"></i>
+        Decline
+      </button>
+    </div>
+  </div>
+</div> 

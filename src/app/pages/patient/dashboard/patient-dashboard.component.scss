@@ -1,0 +1,444 @@
+// Dashboard Container
+.dashboard-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Dashboard Header
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  
+  .title-section {
+    h1 {
+      font-size: 1.8rem;
+      margin: 0;
+      color: #333;
+    }
+    
+    p {
+      margin: 0.5rem 0 0;
+      color: #777;
+      font-size: 1rem;
+    }
+  }
+  
+  .date-section {
+    p {
+      font-size: 1rem;
+      color: #666;
+      font-weight: 500;
+    }
+  }
+}
+
+// Dashboard Sections
+.dashboard-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    
+    h2 {
+      font-size: 1.4rem;
+      margin: 0;
+      color: #444;
+      font-weight: 600;
+    }
+    
+    .view-all-btn {
+      background: transparent;
+      border: none;
+      color: #3498db;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Loading, Error, and Empty States
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+  }
+  
+  i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #777;
+  }
+  
+  p {
+    margin: 0 0 1rem;
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    
+    &:hover {
+      background-color: #2980b9;
+    }
+  }
+}
+
+// Animation for spinner
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// Health Metrics Section
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  
+  .metric-card {
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    padding: 1.2rem;
+    border-left: 4px solid #3498db;
+    
+    .metric-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      
+      .metric-name {
+        font-weight: 600;
+        color: #555;
+        font-size: 1rem;
+      }
+      
+      .metric-status {
+        font-size: 0.85rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-weight: 500;
+        
+        &.status-normal {
+          background-color: #e8f5e9;
+          color: #2e7d32;
+        }
+        
+        &.status-warning {
+          background-color: #fff8e1;
+          color: #f57f17;
+        }
+        
+        &.status-critical {
+          background-color: #ffebee;
+          color: #c62828;
+        }
+      }
+    }
+    
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+      
+      .metric-unit {
+        font-size: 1rem;
+        color: #777;
+        font-weight: 400;
+      }
+    }
+    
+    .metric-change {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      margin-bottom: 0.8rem;
+      
+      i {
+        margin-right: 0.5rem;
+        
+        &.fa-arrow-up {
+          color: #e53935;
+        }
+        
+        &.fa-arrow-down {
+          color: #43a047;
+        }
+      }
+      
+      span {
+        margin-left: 0.3rem;
+        color: #777;
+      }
+    }
+    
+    .metric-date {
+      font-size: 0.85rem;
+      color: #888;
+    }
+  }
+}
+
+// Appointments Section
+.appointments-list {
+  .appointment-card {
+    display: flex;
+    background-color: #f7f9fc;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .appointment-avatar {
+      flex: 0 0 70px;
+      
+      img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+    }
+    
+    .appointment-details {
+      flex: 1;
+      margin: 0 1.5rem;
+      
+      .appointment-doctor {
+        margin-bottom: 0.8rem;
+        
+        h3 {
+          margin: 0 0 0.3rem;
+          font-size: 1.1rem;
+          color: #333;
+        }
+        
+        p {
+          margin: 0;
+          color: #777;
+          font-size: 0.9rem;
+        }
+      }
+      
+      .appointment-info {
+        display: flex;
+        flex-wrap: wrap;
+        
+        .info-item {
+          display: flex;
+          align-items: center;
+          margin-right: 1.5rem;
+          margin-bottom: 0.5rem;
+          
+          i {
+            color: #3498db;
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+          }
+          
+          span {
+            color: #555;
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+    
+    .appointment-actions {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      
+      button {
+        padding: 0.6rem 1rem;
+        border-radius: 4px;
+        border: none;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        i {
+          margin-right: 0.5rem;
+        }
+        
+        &.primary-btn {
+          background-color: #3498db;
+          color: white;
+          margin-bottom: 0.8rem;
+          
+          &:hover {
+            background-color: #2980b9;
+          }
+        }
+        
+        &.secondary-btn {
+          background-color: transparent;
+          border: 1px solid #ccc;
+          color: #555;
+          
+          &:hover {
+            background-color: #f0f0f0;
+          }
+        }
+      }
+    }
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      
+      .appointment-avatar {
+        margin-bottom: 1rem;
+      }
+      
+      .appointment-details {
+        margin: 0 0 1rem;
+      }
+      
+      .appointment-actions {
+        flex-direction: row;
+        
+        .primary-btn {
+          margin-right: 0.8rem;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+// Activities Section
+.activities-timeline {
+  padding: 0.5rem 0;
+  
+  .timeline-item {
+    position: relative;
+    padding-left: 2.5rem;
+    padding-bottom: 1.5rem;
+    
+    &:last-child {
+      padding-bottom: 0;
+    }
+    
+    &:before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 30px;
+      bottom: 0;
+      width: 2px;
+      background-color: #e0e0e0;
+    }
+    
+    &:last-child:before {
+      display: none;
+    }
+    
+    .timeline-icon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #3498db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      i {
+        color: white;
+        font-size: 0.9rem;
+      }
+      
+      &.activity-appointment {
+        background-color: #3498db;
+      }
+      
+      &.activity-prescription {
+        background-color: #9b59b6;
+      }
+      
+      &.activity-message {
+        background-color: #2ecc71;
+      }
+      
+      &.activity-payment {
+        background-color: #e74c3c;
+      }
+      
+      &.activity-document {
+        background-color: #f39c12;
+      }
+    }
+    
+    .timeline-content {
+      background-color: #f7f9fc;
+      border-radius: 8px;
+      padding: 1rem;
+      
+      .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.5rem;
+        
+        h3 {
+          margin: 0;
+          font-size: 1rem;
+          color: #333;
+        }
+        
+        .timeline-time {
+          font-size: 0.8rem;
+          color: #888;
+        }
+      }
+      
+      .timeline-description {
+        margin: 0;
+        color: #666;
+        font-size: 0.9rem;
+      }
+    }
+  }
+} 

@@ -1,6 +1,8 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './admin-layout/admin-layout.component';
 import { AdminDashboardComponent } from './dashboard/admin-dashboard.component';
+import { VerifyDoctorComponent } from './verify-doctor/verify-doctor.component';
+import { ManageUsersComponent } from './manage-users/manage-users.component';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -20,15 +22,17 @@ export const ADMIN_ROUTES: Routes = [
         component: AdminDashboardComponent
       },
       
-      // Add additional admin routes as needed
-      // {
-      //   path: 'verify-doctor',
-      //   component: VerifyDoctorComponent
-      // },
-      // {
-      //   path: 'manage-users',
-      //   component: ManageUsersComponent
-      // },
+      // Doctor verification route
+      {
+        path: 'verify-doctor',
+        component: VerifyDoctorComponent
+      },
+      
+      // User management route
+      {
+        path: 'manage-users',
+        component: ManageUsersComponent
+      },
 
       // Default fallback
       {

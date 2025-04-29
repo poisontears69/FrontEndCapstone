@@ -1,0 +1,112 @@
+<div class="patients-container">
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading patients...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+
+  <!-- Patients Content -->
+  <div *ngIf="!isLoading && !error" class="patients-content">
+    <!-- Header -->
+    <div class="patients-header">
+      <h2>
+        <i class="fas fa-hospital-user me-2"></i>
+        My Patients
+      </h2>
+      <div class="patients-count">
+        {{ filteredPatients.length }} patients
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search patients by name, email or phone..." 
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        >
+        <button *ngIf="searchQuery" class="clear-search-btn" (click)="clearSearch()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Phonebook Style List -->
+    <div class="phonebook-container">
+      <!-- Alphabet Index -->
+      <div class="alphabet-index">
+        <div 
+          *ngFor="let letter of alphabetIndex" 
+          class="index-item" 
+          [class.active]="alphabetMap[letter]"
+          [class.disabled]="!alphabetMap[letter]"
+          (click)="scrollToLetter(letter)"
+        >
+          {{ letter }}
+        </div>
+      </div>
+
+      <!-- Patient List -->
+      <div class="patient-list-container">
+        <div *ngIf="filteredPatients.length === 0" class="no-results">
+          <div class="no-results-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3>No patients found</h3>
+          <p>Try adjusting your search criteria</p>
+        </div>
+        
+        <div *ngIf="filteredPatients.length > 0" class="patient-groups">
+          <div *ngFor="let group of patientGroups" class="patient-group" [id]="'group-' + group.letter">
+            <div class="group-header">{{ group.letter }}</div>
+            
+            <div class="patient-items">
+              <div 
+                *ngFor="let patient of group.patients" 
+                class="patient-item"
+                (click)="viewPatientDetails(patient.id)"
+              >
+                <div class="patient-avatar">
+                  <img 
+                    [src]="patient.profilePicture || 'assets/images/default-avatar.png'" 
+                    [alt]="patient.fullName"
+                  >
+                </div>
+                <div class="patient-info">
+                  <div class="patient-name">{{ patient.fullName }}</div>
+                  <div class="patient-details">
+                    <div class="patient-phone">
+                      <i class="fas fa-phone-alt"></i>
+                      {{ patient.phone }}
+                    </div>
+                    <div class="patient-email">
+                      <i class="fas fa-envelope"></i>
+                      {{ patient.email }}
+                    </div>
+                  </div>
+                </div>
+                <div class="patient-status">
+                  <div *ngIf="patient.upcomingAppointment" class="upcoming-badge">
+                    <i class="fas fa-calendar-check me-1"></i>
+                    Upcoming
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

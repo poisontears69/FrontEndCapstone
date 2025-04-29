@@ -1,0 +1,307 @@
+<div class="clinics-container">
+  <!-- Alert Messages -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Clinic Management</h1>
+    <p>Manage your practice locations, schedules, and availability.</p>
+  </div>
+
+  <!-- Clinics List Panel -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <h2>My Clinics</h2>
+        <button class="btn btn-primary" (click)="resetForm()" *ngIf="isEditing">
+          <i class="fas fa-plus me-2"></i>Add New Clinic
+        </button>
+      </div>
+      
+      <!-- Search and Filter Controls -->
+      <div class="search-filter-container mt-3">
+        <div class="search-box">
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Search clinics..." 
+            [(ngModel)]="searchQuery"
+            (input)="applyFilters()"
+          >
+          <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="filter-buttons">
+          <button 
+            class="btn" 
+            [class.btn-primary]="activeFilter === 'all'"
+            [class.btn-outline-primary]="activeFilter !== 'all'"
+            (click)="filterByStatus('all')"
+          >
+            All
+          </button>
+          <button 
+            class="btn" 
+            [class.btn-primary]="activeFilter === 'active'"
+            [class.btn-outline-primary]="activeFilter !== 'active'"
+            (click)="filterByStatus('active')"
+          >
+            Active
+          </button>
+          <button 
+            class="btn" 
+            [class.btn-primary]="activeFilter === 'inactive'"
+            [class.btn-outline-primary]="activeFilter !== 'inactive'"
+            (click)="filterByStatus('inactive')"
+          >
+            Inactive
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center p-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      
+      <div *ngIf="!isLoading">
+        <div *ngIf="filteredClinics.length === 0" class="text-center p-5">
+          <i class="fas fa-clinic-medical fa-3x text-muted mb-3"></i>
+          <h4>No Clinics Found</h4>
+          <p *ngIf="clinics.length === 0">Add your first clinic to start managing your practice locations</p>
+          <p *ngIf="clinics.length > 0">No clinics match your current filters</p>
+        </div>
+        
+        <div *ngIf="filteredClinics.length > 0" class="clinic-list">
+          <div *ngFor="let clinic of filteredClinics" class="clinic-card" [class.inactive]="clinic.isActive === false">
+            <div class="clinic-status" *ngIf="clinic.isActive === false">
+              <span class="status-badge">Inactive</span>
+            </div>
+            
+            <div class="clinic-header">
+              <h4>{{ clinic.name }}</h4>
+              <div class="clinic-actions">
+                <button class="btn btn-sm" 
+                  [class.btn-success]="clinic.isActive === false"
+                  [class.btn-warning]="clinic.isActive !== false"
+                  (click)="toggleClinicStatus(clinic)">
+                  <i class="fas" [class.fa-toggle-on]="clinic.isActive !== false" [class.fa-toggle-off]="clinic.isActive === false"></i>
+                  {{ clinic.isActive !== false ? 'Deactivate' : 'Activate' }}
+                </button>
+                <button class="btn btn-sm btn-primary" (click)="editClinic(clinic)">
+                  <i class="fas fa-edit me-1"></i>Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="deleteClinic(clinic)">
+                  <i class="fas fa-trash me-1"></i>Delete
+                </button>
+              </div>
+            </div>
+            
+            <div class="clinic-content">
+              <div class="clinic-info">
+                <div class="details">
+                  <p><i class="fas fa-map-marker-alt me-2"></i>{{ clinic.address }}</p>
+                  <p><i class="fas fa-phone me-2"></i>{{ clinic.landline }}</p>
+                  <p *ngIf="clinic.description"><i class="fas fa-info-circle me-2"></i>{{ clinic.description }}</p>
+                </div>
+                
+                <div class="schedules">
+                  <h5>Schedules</h5>
+                  <div class="schedule-list">
+                    <div *ngFor="let schedule of clinic.schedules" class="schedule-item" [class.inactive]="!schedule.isActive">
+                      <span class="day">{{ getDayLabel(schedule.day) }}</span>
+                      <span class="time">{{ schedule.startTime }} - {{ schedule.endTime }}</span>
+                      <span *ngIf="!schedule.isActive" class="inactive-tag">Inactive</span>
+                    </div>
+                    <div *ngIf="clinic.schedules.length === 0" class="no-schedules">
+                      No schedules set
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="clinic-map">
+                <img [src]="'https://maps.googleapis.com/maps/api/staticmap?center=' + clinic.address + '&zoom=14&size=300x200&markers=color:red%7C' + clinic.address + '&key=AIzaSyDummyKey'" 
+                     alt="Clinic location map"
+                     class="map-image">
+                <div class="map-overlay">
+                  <a [href]="'https://www.google.com/maps/search/?api=1&query=' + clinic.address" target="_blank" class="btn btn-sm btn-light">
+                    <i class="fas fa-map-marked-alt me-1"></i>View on Google Maps
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clinic Form Panel -->
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ isEditing ? 'Edit' : 'Add New' }} Clinic</h2>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="clinicForm" (ngSubmit)="submitForm()">
+        <!-- Basic Details -->
+        <div class="form-section">
+          <h3>Basic Details</h3>
+          
+          <div class="form-group">
+            <label for="name">Clinic Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name" 
+              class="form-control" 
+              [ngClass]="{'is-invalid': formSubmitted && clinicForm.get('name')?.invalid}"
+            >
+            <div *ngIf="formSubmitted && clinicForm.get('name')?.invalid" class="invalid-feedback">
+              Clinic name is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input 
+              type="text" 
+              id="address" 
+              formControlName="address" 
+              class="form-control" 
+              [ngClass]="{'is-invalid': formSubmitted && clinicForm.get('address')?.invalid}"
+            >
+            <div *ngIf="formSubmitted && clinicForm.get('address')?.invalid" class="invalid-feedback">
+              Address is required
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="landline">Landline Number</label>
+            <input 
+              type="text" 
+              id="landline" 
+              formControlName="landline" 
+              class="form-control" 
+              [ngClass]="{'is-invalid': formSubmitted && clinicForm.get('landline')?.invalid}"
+            >
+            <div *ngIf="formSubmitted && clinicForm.get('landline')?.invalid" class="invalid-feedback">
+              <div *ngIf="clinicForm.get('landline')?.errors?.['required']">Landline number is required</div>
+              <div *ngIf="clinicForm.get('landline')?.errors?.['pattern']">Only numbers, dash and plus are allowed</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea 
+              id="description" 
+              formControlName="description" 
+              class="form-control"
+              rows="3"
+              placeholder="Add details about your clinic, such as specialties, features, etc."
+            ></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label class="d-block">Status</label>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" formControlName="isActive" id="isActiveClinic">
+              <label class="form-check-label" for="isActiveClinic">
+                {{ clinicForm.get('isActive')?.value ? 'Active' : 'Inactive' }}
+              </label>
+            </div>
+            <small class="form-text text-muted">
+              Inactive clinics won't appear in patient searches and won't accept appointments.
+            </small>
+          </div>
+        </div>
+        
+        <!-- Schedules -->
+        <div class="form-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Schedules</h3>
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSchedule()">
+              <i class="fas fa-plus me-1"></i>Add Schedule
+            </button>
+          </div>
+          
+          <div class="schedules-container" formArrayName="schedules">
+            <div *ngFor="let schedule of schedules.controls; let i = index" class="schedule-form-item" [formGroupName]="i">
+              <div class="schedule-header d-flex justify-content-between align-items-center">
+                <h5>Schedule #{{ i + 1 }}</h5>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeSchedule(i)" *ngIf="schedules.length > 1">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              
+              <div class="schedule-grid">
+                <div class="form-group">
+                  <label>Day</label>
+                  <select formControlName="day" class="form-control" [ngClass]="{'is-invalid': formSubmitted && schedule.get('day')?.invalid}">
+                    <option *ngFor="let day of weekDays" [value]="day.value">{{ day.label }}</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Start Time</label>
+                  <input 
+                    type="time" 
+                    formControlName="startTime" 
+                    class="form-control" 
+                    [ngClass]="{'is-invalid': formSubmitted && schedule.get('startTime')?.invalid}"
+                  >
+                </div>
+                
+                <div class="form-group">
+                  <label>End Time</label>
+                  <input 
+                    type="time" 
+                    formControlName="endTime" 
+                    class="form-control" 
+                    [ngClass]="{'is-invalid': formSubmitted && schedule.get('endTime')?.invalid}"
+                  >
+                </div>
+                
+                <div class="form-group">
+                  <label class="d-block">Status</label>
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" formControlName="isActive" id="isActive{{i}}">
+                    <label class="form-check-label" for="isActive{{i}}">
+                      {{ schedule.get('isActive')?.value ? 'Active' : 'Inactive' }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="schedules.length === 0" class="alert alert-info">
+              No schedules added. Click "Add Schedule" to add your clinic hours.
+            </div>
+          </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            {{ isEditing ? 'Update' : 'Save' }} Clinic
+          </button>
+          
+          <button type="button" class="btn btn-secondary ms-2" (click)="cancelEdit()" *ngIf="isEditing">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 
